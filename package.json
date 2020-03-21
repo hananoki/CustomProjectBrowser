@@ -1,0 +1,15 @@
+{
+  "name": "com.hananoki.custom-project-browser",
+  "displayName": "CustomProjectBrowser",
+  "version": "0.5.0-perview",
+  "unity": "2018.3",
+  "description": "A simple customized project browser ",
+  "keywords": [
+    "Editor"
+  ],
+  "category": "Editor Extentions",
+  "dependencies": {
+    "com.hananoki.shared-module": "https://github.com/hananoki/SharedModule.git",
+    "com.hananoki.unity-reflection": "https://github.com/hananoki/UnityReflection.git"
+  }
+}
