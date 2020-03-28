@@ -11,5 +11,8 @@ namespace Hananoki.CustomProjectBrowser {
 	public static class S {
 		public static string _ShowExtension => L.Tr( "Show Extension" );
 		public static string _DuplicateAsset => L.Tr( "Duplicate Asset" );
+		public static string _Clickontheextensiontorunitinthefiler => L.Tr( "Click on the extension to run it in the filer" );
+		public static string _EnablingAddressablesupport => L.Tr( "Enabling Addressable support" );
+		public static string _AddtoAddressable => L.Tr( "Add to Addressable" );
 	}
 }

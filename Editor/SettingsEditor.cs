@@ -2,21 +2,22 @@
 
 using UnityEditor;
 using UnityEngine;
-using Hananoki.SharedModule;
-using Hananoki.Reflection;
 
-using Settings = Hananoki.CustomProjectBrowser.SettingsEditor;
+using E = Hananoki.CustomProjectBrowser.SettingsEditor;
 using SS = Hananoki.SharedModule.S;
 
 namespace Hananoki.CustomProjectBrowser {
 
 	[System.Serializable]
 	public class SettingsEditor {
-		
+
 		public bool Enable;
 
 		public bool showExtension;
 		public bool IconClickContext;
+
+		public bool enableExtensionRun;
+		public bool adressableSupport;
 
 		public bool showLineColor = true;
 		public Color lineColorPersonal = new Color( 0, 0, 0, 0.05f );
@@ -28,7 +29,7 @@ namespace Hananoki.CustomProjectBrowser {
 		public Color extBackColorProfessional = ColorUtils.RGB( 41 );
 		public Color extTextColorProfessional = ColorUtils.RGB( 173 );
 
-		public static Settings i;
+		public static E i;
 
 		public Color extBackColor {
 			get {
@@ -61,18 +62,21 @@ namespace Hananoki.CustomProjectBrowser {
 
 		public static void Load() {
 			if( i != null ) return;
-			i = EditorPrefJson<Settings>.Get( Package.editorPrefName );
+			i = EditorPrefJson<E>.Get( Package.editorPrefName );
 		}
 
 
 
 		public static void Save() {
-			EditorPrefJson<Settings>.Set( Package.editorPrefName, i );
+			EditorPrefJson<E>.Set( Package.editorPrefName, i );
 		}
 	}
 
 
 
+	/// <summary>
+	/// EditorWindow
+	/// </summary>
 	public class SettingsEditorWindow : HSettingsEditorWindow {
 
 		public static void Open() {
@@ -82,7 +86,7 @@ namespace Hananoki.CustomProjectBrowser {
 
 		void OnEnable() {
 			drawGUI = DrawGUI;
-			Settings.Load();
+			E.Load();
 		}
 
 
@@ -96,69 +100,73 @@ namespace Hananoki.CustomProjectBrowser {
 
 			using( new PreferenceLayoutScope() ) {
 
-				Settings.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, Settings.i.Enable );
-
+				E.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, E.i.Enable );
+				EditorGUI.indentLevel++;
 				GUILayout.Space( 8f );
 
-				using( new EditorGUI.DisabledGroupScope( !Settings.i.Enable ) ) {
-					Settings.i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, Settings.i.showExtension );
-					using( new EditorGUI.DisabledGroupScope( !Settings.i.showExtension ) ) {
+				using( new EditorGUI.DisabledGroupScope( !E.i.Enable ) ) {
+					E.i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, E.i.showExtension );
+					using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
 						EditorGUI.indentLevel++;
-						Settings.i.extBackColor = EditorGUILayout.ColorField( SS._BackColor, Settings.i.extBackColor );
-						Settings.i.extTextColor = EditorGUILayout.ColorField( SS._TextColor, Settings.i.extTextColor );
+						E.i.extBackColor = EditorGUILayout.ColorField( SS._BackColor, E.i.extBackColor );
+						E.i.extTextColor = EditorGUILayout.ColorField( SS._TextColor, E.i.extTextColor );
 						EditorGUI.indentLevel--;
 					}
 
-					Settings.i.showLineColor = HEditorGUILayout.ToggleLeft( SS._Changecolorforeachrow, Settings.i.showLineColor );
+					E.i.showLineColor = HEditorGUILayout.ToggleLeft( SS._Changecolorforeachrow, E.i.showLineColor );
 
-					using( new EditorGUI.DisabledGroupScope( !Settings.i.showLineColor ) ) {
+					using( new EditorGUI.DisabledGroupScope( !E.i.showLineColor ) ) {
 						EditorGUI.indentLevel++;
-						Settings.i.lineColor = EditorGUILayout.ColorField( SS._Rowcolor, Settings.i.lineColor );
+						E.i.lineColor = EditorGUILayout.ColorField( SS._Rowcolor, E.i.lineColor );
 						EditorGUI.indentLevel--;
 					}
 
 					GUILayout.Space( 8f );
 					EditorGUILayout.LabelField( $"* {SS._Experimental}", EditorStyles.boldLabel );
-					Settings.i.IconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, Settings.i.IconClickContext );
+					E.i.IconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, E.i.IconClickContext );
+					if( UnitySymbol.Has( "UNITY_EDITOR_WIN" ) ) {
+						using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
+							E.i.enableExtensionRun = HEditorGUILayout.ToggleLeft( S._Clickontheextensiontorunitinthefiler, E.i.enableExtensionRun );
+						}
+					}
+					else {
+						E.i.enableExtensionRun = false;
+					}
+					E.i.adressableSupport = HEditorGUILayout.ToggleLeft( S._EnablingAddressablesupport, E.i.adressableSupport );
 				}
+				EditorGUI.indentLevel--;
 			}
 
 			GUILayout.Space( 8f );
-			
+
 
 			if( EditorGUI.EndChangeCheck() ) {
-				Settings.Save();
-				CustomProjectBrowser.s_styles.lineColor = Settings.i.lineColor;
+				E.Save();
+				CustomProjectBrowser.s_styles.lineColor = E.i.lineColor;
 				EditorApplication.RepaintProjectWindow();
 			}
 
 			GUILayout.Space( 8f );
-
 		}
-
-
 
 
 
 #if UNITY_2018_3_OR_NEWER && !ENABLE_LEGACY_PREFERENCE
-		static void titleBarGuiHandler() {
-			GUILayout.Label( $"{Package.version}", EditorStyles.miniLabel );
-		}
 		[SettingsProvider]
 		public static SettingsProvider PreferenceView() {
 			var provider = new SettingsProvider( $"Preferences/Hananoki/{Package.name}", SettingsScope.User ) {
 				label = $"{Package.name}",
 				guiHandler = PreferencesGUI,
-				titleBarGuiHandler = titleBarGuiHandler,
+				titleBarGuiHandler = () => GUILayout.Label( $"{Package.version}", EditorStyles.miniLabel ),
 			};
 			return provider;
 		}
 		public static void PreferencesGUI( string searchText ) {
 #else
-		[PreferenceItem( CustomProjectBrowser.PACKAGE_NAME )]
+		[PreferenceItem( Package.name )]
 		public static void PreferencesGUI() {
 #endif
-			Settings.Load();
+			E.Load();
 			DrawGUI();
 		}
 	}

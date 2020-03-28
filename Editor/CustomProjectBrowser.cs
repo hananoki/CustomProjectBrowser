@@ -5,11 +5,10 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using Hananoki.UnityReflection;
-
-using Hananoki.SharedModule;
+using Hananoki.Reflection;
 
 using UnityObject = UnityEngine.Object;
-using Settings = Hananoki.CustomProjectBrowser.SettingsEditor;
+using E = Hananoki.CustomProjectBrowser.SettingsEditor;
 using SS = Hananoki.SharedModule.S;
 
 namespace Hananoki.CustomProjectBrowser {
@@ -30,7 +29,7 @@ namespace Hananoki.CustomProjectBrowser {
 
 
 		static CustomProjectBrowser() {
-			Settings.Load();
+			E.Load();
 			EditorApplication.projectWindowItemOnGUI += ProjectWindowItemCallback;
 		}
 
@@ -42,57 +41,38 @@ namespace Hananoki.CustomProjectBrowser {
 		/// <param name="selectionRect"></param>
 		static void ProjectWindowItemCallback( string guid, Rect selectionRect ) {
 
-			if( !Settings.i.Enable ) return;
+			if( !E.i.Enable ) return;
 
 			if( s_styles == null ) {
 				s_styles = new Styles();
-				s_styles.lineColor = Settings.i.lineColor;
+				s_styles.lineColor = E.i.lineColor;
 			}
 
 			if( !IsDetails( selectionRect ) ) return;
 
-			if( Settings.i.showLineColor ) {
+			if( E.i.showLineColor ) {
 				DrawBackColor( selectionRect, 0x00 );
 			}
 
 			//showContextMenu( ContextTargetWindow.Project );
+			float maxx = 50;
 
-			if( Settings.i.showExtension ) {
-				var path = AssetDatabase.GUIDToAssetPath( guid );
-				if( AssetDatabase.IsValidFolder( path ) ) return;
-				
-				var ext = Path.GetExtension( path );
-				if( string.IsNullOrEmpty( ext ) ) return;
-
-				var label = EditorStyles.label;
-				var content = EditorHelper.TempContent( ext );
-				var width = s_styles.label.CalcSize( content ).x;
-				var rc = selectionRect;
-				rc.x = rc.xMax - width - 12;
-				rc.x += 10;
-				rc.width = width;
-
-				var rc2 = rc;
-				rc2.y += 2;
-#if UNITY_2019_1_OR_NEWER
-				rc.x -= 4;
-				rc2.x -= 4;
-				rc2.width += 2;
-#endif
-				rc2.height -= 4;
-				EditorGUI.DrawRect( rc2, Settings.i.extBackColor );
-				if(EditorHelper.HasMouseClick( rc2 ) ) {
-					System.Diagnostics.Process.Start( "explorer.exe", $"{Environment.CurrentDirectory}/{path}".Replace("/","\\") );
-					Event.current.Use();
-				}
-				rc.y -= 1;
-				s_styles.label.normal.textColor = Settings.i.extTextColor;
-				GUI.Label( rc, ext, s_styles.label );
-
+			if( E.i.showExtension ) {
+				maxx = ShowExtention( guid, selectionRect );
 			}
 
+			if( IsAdressableSupport() && IsAdressableAssets( guid ) ) {
+				var ff = maxx - 20;
+				var rcb = new Rect( ff, selectionRect.y, 16, 16 );
+				rcb.y += 2;
+				GUI.Label( rcb, Icon.Get( "AssetLabelIcon" ), HEditorStyles.iconButton );
+				if( EditorHelper.HasMouseClick( rcb ) ) {
+					EditorApplication.ExecuteMenuItem( "Window/Asset Management/Addressables/Groups" );
+					Event.current.Use();
+				}
+			}
 
-			if( Settings.i.IconClickContext && UnityEditorProjectBrowser.IsTwoColumns() ) {
+			if( E.i.IconClickContext && UnityEditorProjectBrowser.IsTwoColumns() ) {
 				var uobj = GUIDUtils.LoadAssetAtGUID<UnityObject>( guid );
 
 				var r = selectionRect;
@@ -103,7 +83,17 @@ namespace Hananoki.CustomProjectBrowser {
 					var m = new GenericMenu();
 					m.AddItem( SS._OpenInNewInspector, false, _uobj => EditorHelper.ShowNewInspector( _uobj.ToCast<UnityObject>() ), uobj );
 					m.AddItem( S._DuplicateAsset, false, _uobj => EditorHelper.DuplicateAsset<UnityObject>( _uobj.ToCast<UnityObject>() ), uobj );
-
+					if( IsAdressableSupport() ) {
+						m.AddSeparator( "" );
+						if( IsAdressableAssets( guid ) ) {
+							m.AddDisabledItem( S._AddtoAddressable );
+						}
+						else {
+							m.AddItem( S._AddtoAddressable, false, _uobj => {
+								UnityAddressableAssetInspectorGUI.SetAaEntry( UnityAddressableAssetSettingsDefaultObject.GetSettings( true ), new UnityObject[] { (UnityObject) _uobj }, true );
+							}, uobj );
+						}
+					}
 #if TEST
 					var path = AssetDatabase.GUIDToAssetPath( guid );
 					if( !AssetDatabase.IsValidFolder( path ) && Path.GetExtension( path ) == ".mp3" ) {
@@ -144,6 +134,73 @@ namespace Hananoki.CustomProjectBrowser {
 				}
 			}
 #endif
+		}
+
+
+
+		/// <summary>
+		/// 拡張子を表示します
+		/// </summary>
+		/// <param name="guid"></param>
+		/// <param name="selectionRect"></param>
+		/// <returns></returns>
+		static float ShowExtention( string guid, Rect selectionRect ) {
+			var path = AssetDatabase.GUIDToAssetPath( guid );
+			if( AssetDatabase.IsValidFolder( path ) ) return selectionRect.xMax;
+
+			var ext = Path.GetExtension( path );
+			if( string.IsNullOrEmpty( ext ) ) return selectionRect.xMax;
+
+			var label = EditorStyles.label;
+			var content = EditorHelper.TempContent( ext );
+			var width = s_styles.label.CalcSize( content ).x;
+			var rc = selectionRect;
+			rc.x = rc.xMax - width - 12;
+			rc.x += 10;
+			rc.width = width;
+
+			var rc2 = rc;
+			rc2.y += 2;
+#if UNITY_2019_1_OR_NEWER
+			rc.x -= 4;
+			rc2.x -= 4;
+			rc2.width += 2;
+#endif
+			rc2.height -= 4;
+			EditorGUI.DrawRect( rc2, E.i.extBackColor );
+			if( E.i.enableExtensionRun && EditorHelper.HasMouseClick( rc2 ) ) {
+				System.Diagnostics.Process.Start( "explorer.exe", $"{Environment.CurrentDirectory}/{path}".Replace( "/", "\\" ) );
+				Event.current.Use();
+			}
+			rc.y -= 1;
+			s_styles.label.normal.textColor = E.i.extTextColor;
+			GUI.Label( rc, ext, s_styles.label );
+
+			return rc.x;
+			//EditorGUI.DrawRect( rc, new Color(0,0,1,0.25f) );
+		}
+
+
+		static bool IsAdressableSupport() {
+			if( !E.i.adressableSupport ) return false;
+			if( R.LoadAssembly( "Unity.Addressables.Editor" ) == null ) return false;
+			return true;
+		}
+
+		static bool IsAdressableAssets( string guid ) {
+			var aaSettings = UnityAddressableAssetSettingsDefaultObject.Settings;
+			//return false;
+			//var aaSettings = AddressableAssetSettingsDefaultObject.Settings;
+			//AddressableAssetEntry entry = null;
+			UnityAddressableAssetEntry entry = null;
+
+			if( aaSettings.m_instance != null ) {
+				entry = aaSettings.FindAssetEntry( guid );
+				if( entry.m_instance != null ) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 
