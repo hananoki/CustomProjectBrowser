@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using Hananoki.UnityReflection;
 using Hananoki.Reflection;
+using Hananoki.Extensions;
 
 using UnityObject = UnityEngine.Object;
 using E = Hananoki.CustomProjectBrowser.SettingsEditor;
