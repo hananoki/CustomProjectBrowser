@@ -1,5 +1,8 @@
 # CustomProjectBrowser
 
+## [0.5.4] - 2020-04-18
+- SharedModule v1.2.0 is supported
+
 ## [0.5.3] - 2020-04-04
 - SharedModule v1.1.0 is supported
 

@@ -21,7 +21,7 @@
 ```
 
 ## Requirement
-![](https://img.shields.io/badge/SharedModule-v1.1.0%20or%20later-blue.svg)
+![](https://img.shields.io/badge/SharedModule-v1.2.0%20or%20later-blue.svg)
 ![](https://img.shields.io/badge/UnityReflection-v1.0.5%20or%20later-blue.svg)
 
 ## Description

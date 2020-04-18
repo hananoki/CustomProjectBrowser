@@ -5,9 +5,10 @@ namespace Hananoki.CustomProjectBrowser {
   public static class Package {
     public const string name = "CustomProjectBrowser";
     public const string editorPrefName = "Hananoki.CustomProjectBrowser";
-    public const string version = "0.5.3-preview";
+    public const string version = "0.5.4-preview";
   }
   
+#if UNITY_EDITOR
   [EditorLocalizeClass]
   public class LocalizeEvent {
     [EditorLocalizeMethod]
@@ -19,4 +20,5 @@ namespace Hananoki.CustomProjectBrowser {
       }
     }
   }
+#endif
 }

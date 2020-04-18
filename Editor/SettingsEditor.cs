@@ -80,6 +80,8 @@ namespace Hananoki.CustomProjectBrowser {
 	/// </summary>
 	public class SettingsEditorWindow : HSettingsEditorWindow {
 
+		static Vector2 s_scrollPos;
+
 		public static void Open() {
 			var window = GetWindow<SettingsEditorWindow>();
 			window.SetTitle( new GUIContent( Package.name, Icon.Get( "SettingsIcon" ) ) );
@@ -99,7 +101,7 @@ namespace Hananoki.CustomProjectBrowser {
 
 			EditorGUI.BeginChangeCheck();
 
-			using( new PreferenceLayoutScope() ) {
+			using( new PreferenceLayoutScope( ref s_scrollPos ) ) {
 
 				E.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, E.i.Enable );
 				EditorGUI.indentLevel++;
