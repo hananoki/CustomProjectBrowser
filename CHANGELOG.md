@@ -1,5 +1,14 @@
 # CustomProjectBrowser
 
+## [0.5.5] - 2020-05-31
+SharedModule v1.3.0 is required
+
+### Changed
+- Set "Auto Referenced" of asmdef to false
+
+### Fixed
+- Fixed poor performance with a few hundred megabytes of assets
+
 ## [0.5.4] - 2020-04-18
 - SharedModule v1.2.0 is supported
 

@@ -4,7 +4,6 @@ using System.IO;
 using System;
 using UnityEditor;
 using UnityEngine;
-using Hananoki.UnityReflection;
 using Hananoki.Reflection;
 using Hananoki.Extensions;
 
@@ -74,7 +73,6 @@ namespace Hananoki.CustomProjectBrowser {
 			}
 
 			if( E.i.IconClickContext && UnityEditorProjectBrowser.IsTwoColumns() ) {
-				var uobj = GUIDUtils.LoadAssetAtGUID<UnityObject>( guid );
 
 				var r = selectionRect;
 				r.x += 3;
@@ -82,17 +80,17 @@ namespace Hananoki.CustomProjectBrowser {
 				//EditorGUI.DrawRect( r, new Color( 0, 0, 1, 0.5f ) );
 				if( EditorHelper.HasMouseClick( r ) ) {
 					var m = new GenericMenu();
-					m.AddItem( SS._OpenInNewInspector, false, _uobj => EditorHelper.ShowNewInspector( _uobj.ToCast<UnityObject>() ), uobj );
-					m.AddItem( S._DuplicateAsset, false, _uobj => EditorHelper.DuplicateAsset<UnityObject>( _uobj.ToCast<UnityObject>() ), uobj );
+					m.AddItem( SS._OpenInNewInspector, _guid => EditorHelper.ShowNewInspector( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
+					m.AddItem( S._DuplicateAsset, _guid => EditorHelper.DuplicateAsset( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
 					if( IsAdressableSupport() ) {
 						m.AddSeparator( "" );
 						if( IsAdressableAssets( guid ) ) {
 							m.AddDisabledItem( S._AddtoAddressable );
 						}
 						else {
-							m.AddItem( S._AddtoAddressable, false, _uobj => {
-								UnityAddressableAssetInspectorGUI.SetAaEntry( UnityAddressableAssetSettingsDefaultObject.GetSettings( true ), new UnityObject[] { (UnityObject) _uobj }, true );
-							}, uobj );
+							m.AddItem( S._AddtoAddressable, _guid => {
+								UnityAddressableAssetInspectorGUI.SetAaEntry( UnityAddressableAssetSettingsDefaultObject.GetSettings( true ), new UnityObject[] { GUIDUtils.LoadAssetAtGUID( (string) _guid ) }, true );
+							}, guid );
 						}
 					}
 #if TEST
