@@ -3,6 +3,7 @@
 using UnityEditor;
 using UnityEngine;
 using Hananoki.Extensions;
+using Hananoki.SharedModule;
 
 using E = Hananoki.CustomProjectBrowser.SettingsEditor;
 using SS = Hananoki.SharedModule.S;
@@ -80,16 +81,12 @@ namespace Hananoki.CustomProjectBrowser {
 	/// </summary>
 	public class SettingsEditorWindow : HSettingsEditorWindow {
 
-		static Vector2 s_scrollPos;
-
 		public static void Open() {
-			var window = GetWindow<SettingsEditorWindow>();
-			window.SetTitle( new GUIContent( Package.name, Icon.Get( "SettingsIcon" ) ) );
-		}
-
-		void OnEnable() {
-			drawGUI = DrawGUI;
-			E.Load();
+			var w = GetWindow<SettingsEditorWindow>();
+			w.SetTitle( new GUIContent( "Project Settings", EditorIcon.settings ) );
+			w.headerMame = Package.name;
+			w.headerVersion = Package.version;
+			w.gui = DrawGUI;
 		}
 
 
@@ -97,48 +94,46 @@ namespace Hananoki.CustomProjectBrowser {
 		/// <summary>
 		/// 
 		/// </summary>
-		static void DrawGUI() {
-
+		public static void DrawGUI() {
+			E.Load();
 			EditorGUI.BeginChangeCheck();
 
-			using( new PreferenceLayoutScope( ref s_scrollPos ) ) {
+			E.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, E.i.Enable );
+			EditorGUI.indentLevel++;
+			GUILayout.Space( 8f );
 
-				E.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, E.i.Enable );
-				EditorGUI.indentLevel++;
-				GUILayout.Space( 8f );
-
-				using( new EditorGUI.DisabledGroupScope( !E.i.Enable ) ) {
-					E.i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, E.i.showExtension );
-					using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
-						EditorGUI.indentLevel++;
-						E.i.extBackColor = EditorGUILayout.ColorField( SS._BackColor, E.i.extBackColor );
-						E.i.extTextColor = EditorGUILayout.ColorField( SS._TextColor, E.i.extTextColor );
-						EditorGUI.indentLevel--;
-					}
-
-					E.i.showLineColor = HEditorGUILayout.ToggleLeft( SS._Changecolorforeachrow, E.i.showLineColor );
-
-					using( new EditorGUI.DisabledGroupScope( !E.i.showLineColor ) ) {
-						EditorGUI.indentLevel++;
-						E.i.lineColor = EditorGUILayout.ColorField( SS._Rowcolor, E.i.lineColor );
-						EditorGUI.indentLevel--;
-					}
-
-					GUILayout.Space( 8f );
-					EditorGUILayout.LabelField( $"* {SS._Experimental}", EditorStyles.boldLabel );
-					E.i.IconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, E.i.IconClickContext );
-					if( UnitySymbol.Has( "UNITY_EDITOR_WIN" ) ) {
-						using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
-							E.i.enableExtensionRun = HEditorGUILayout.ToggleLeft( S._Clickontheextensiontorunitinthefiler, E.i.enableExtensionRun );
-						}
-					}
-					else {
-						E.i.enableExtensionRun = false;
-					}
-					E.i.adressableSupport = HEditorGUILayout.ToggleLeft( S._EnablingAddressablesupport, E.i.adressableSupport );
+			using( new EditorGUI.DisabledGroupScope( !E.i.Enable ) ) {
+				E.i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, E.i.showExtension );
+				using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
+					EditorGUI.indentLevel++;
+					E.i.extBackColor = EditorGUILayout.ColorField( SS._BackColor, E.i.extBackColor );
+					E.i.extTextColor = EditorGUILayout.ColorField( SS._TextColor, E.i.extTextColor );
+					EditorGUI.indentLevel--;
 				}
-				EditorGUI.indentLevel--;
+
+				E.i.showLineColor = HEditorGUILayout.ToggleLeft( SS._Changecolorforeachrow, E.i.showLineColor );
+
+				using( new EditorGUI.DisabledGroupScope( !E.i.showLineColor ) ) {
+					EditorGUI.indentLevel++;
+					E.i.lineColor = EditorGUILayout.ColorField( SS._Rowcolor, E.i.lineColor );
+					EditorGUI.indentLevel--;
+				}
+
+				GUILayout.Space( 8f );
+				EditorGUILayout.LabelField( $"* {SS._Experimental}", EditorStyles.boldLabel );
+				E.i.IconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, E.i.IconClickContext );
+				if( UnitySymbol.Has( "UNITY_EDITOR_WIN" ) ) {
+					using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
+						E.i.enableExtensionRun = HEditorGUILayout.ToggleLeft( S._Clickontheextensiontorunitinthefiler, E.i.enableExtensionRun );
+					}
+				}
+				else {
+					E.i.enableExtensionRun = false;
+				}
+				E.i.adressableSupport = HEditorGUILayout.ToggleLeft( S._EnablingAddressablesupport, E.i.adressableSupport );
 			}
+			EditorGUI.indentLevel--;
+
 
 			GUILayout.Space( 8f );
 
@@ -153,7 +148,7 @@ namespace Hananoki.CustomProjectBrowser {
 		}
 
 
-
+#if !ENABLE_HANANOKI_SETTINGS
 #if UNITY_2018_3_OR_NEWER && !ENABLE_LEGACY_PREFERENCE
 		[SettingsProvider]
 		public static SettingsProvider PreferenceView() {
@@ -169,9 +164,26 @@ namespace Hananoki.CustomProjectBrowser {
 		[PreferenceItem( Package.name )]
 		public static void PreferencesGUI() {
 #endif
-			E.Load();
-			DrawGUI();
+			using( new LayoutScope() ) DrawGUI();
+		}
+#endif
+	}
+
+
+
+#if ENABLE_HANANOKI_SETTINGS
+	[SettingsClass]
+	public class SettingsEvent {
+		[SettingsMethod]
+		public static SettingsItem RegisterSettings() {
+			return new SettingsItem() {
+				//mode = 1,
+				displayName = Package.name,
+				version = Package.version,
+				gui = SettingsEditorWindow.DrawGUI,
+			};
 		}
 	}
+#endif
 }
 

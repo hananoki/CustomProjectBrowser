@@ -15,14 +15,12 @@
 "dependencies": {
   "com.hananoki.custom-project-browser": "https://github.com/hananoki/CustomProjectBrowser.git",
   "com.hananoki.shared-module": "https://github.com/hananoki/SharedModule.git",
-  "com.hananoki.unity-reflection": "https://github.com/hananoki/UnityReflection.git",
   ...
 }
 ```
 
 ## Requirement
-![](https://img.shields.io/badge/SharedModule-v1.3.0%20or%20later-blue.svg)
-![](https://img.shields.io/badge/UnityReflection-v1.0.5%20or%20later-blue.svg)
+![](https://img.shields.io/badge/SharedModule-v1.5.0%20or%20later-blue.svg)
 
 ## Description
 

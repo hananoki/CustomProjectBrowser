@@ -1,5 +1,12 @@
 # CustomProjectBrowser
 
+## [0.5.6] - 2020-07-16
+- SharedModule v1.5.0 is supported
+
+### Changed
+- Support for the new setting
+- The Localize folder has been moved
+
 ## [0.5.5] - 2020-05-31
 SharedModule v1.3.0 is required
 

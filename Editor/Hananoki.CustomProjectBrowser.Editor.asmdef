@@ -3,7 +3,9 @@
     "references": [
         "Hananoki.SharedModule.Runtime",
         "Hananoki.SharedModule.RuntimeEditor",
-        "Hananoki.UnityReflection.Editor"
+        "Hananoki.UnityReflection.Editor",
+        "Hananoki.ReflectionUtils.Editor",
+        "Hananoki.UnitySymbol.Editor"
     ],
     "includePlatforms": [
         "Editor"

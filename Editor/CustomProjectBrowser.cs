@@ -15,13 +15,13 @@ namespace Hananoki.CustomProjectBrowser {
 	[InitializeOnLoad]
 	public static class CustomProjectBrowser {
 		public class Styles {
-			public GUIStyle label;
+			//public GUIStyle label;
 			public Color lineColor;
 
 			public Styles() {
-				label = new GUIStyle( EditorStyles.label );
-				label.alignment = TextAnchor.MiddleLeft;
-				label.padding.bottom = 0;
+				//label = new GUIStyle( EditorStyles.label );
+				//label.alignment = TextAnchor.MiddleLeft;
+				//label.padding.bottom = 0;
 			}
 		}
 
@@ -150,9 +150,9 @@ namespace Hananoki.CustomProjectBrowser {
 			var ext = Path.GetExtension( path );
 			if( string.IsNullOrEmpty( ext ) ) return selectionRect.xMax;
 
-			var label = EditorStyles.label;
+			//var label = EditorStyles.label;
 			var content = EditorHelper.TempContent( ext );
-			var width = s_styles.label.CalcSize( content ).x;
+			var width = HEditorStyles.versionLabel.CalcSize( content ).x;
 			var rc = selectionRect;
 			rc.x = rc.xMax - width - 12;
 			rc.x += 10;
@@ -160,20 +160,20 @@ namespace Hananoki.CustomProjectBrowser {
 
 			var rc2 = rc;
 			rc2.y += 2;
-#if UNITY_2019_1_OR_NEWER
-			rc.x -= 4;
-			rc2.x -= 4;
-			rc2.width += 2;
-#endif
+			if( UnitySymbol.Has( "UNITY_2019_1_OR_NEWER" ) ) {
+				rc.x -= 4;
+				rc2.x -= 4;
+				rc2.width += 2;
+			}
 			rc2.height -= 4;
-			EditorGUI.DrawRect( rc2, E.i.extBackColor );
+			EditorGUI.DrawRect( rc2, SharedModule.SettingsEditor.i.versionBackColor );
 			if( E.i.enableExtensionRun && EditorHelper.HasMouseClick( rc2 ) ) {
 				System.Diagnostics.Process.Start( "explorer.exe", $"{Environment.CurrentDirectory}/{path}".Replace( "/", "\\" ) );
 				Event.current.Use();
 			}
 			rc.y -= 1;
-			s_styles.label.normal.textColor = E.i.extTextColor;
-			GUI.Label( rc, ext, s_styles.label );
+			HEditorStyles.versionLabel.normal.textColor = SharedModule.SettingsEditor.i.versionTextColor;
+			GUI.Label( rc, ext, HEditorStyles.versionLabel );
 
 			return rc.x;
 			//EditorGUI.DrawRect( rc, new Color(0,0,1,0.25f) );
