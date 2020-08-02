@@ -2,6 +2,7 @@
 
 using System.IO;
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Hananoki.Reflection;
@@ -31,6 +32,37 @@ namespace Hananoki.CustomProjectBrowser {
 		static CustomProjectBrowser() {
 			E.Load();
 			EditorApplication.projectWindowItemOnGUI += ProjectWindowItemCallback;
+		}
+
+
+		static void ImporterAction( object context, Action<TextureImporter> action ) {
+			var path = GUIDUtils.GetAssetPath( (string) context );
+			var files = DirectoryUtils.GetFiles( path, "*", SearchOption.AllDirectories ).Where( x => x.GetExtension() != ".meta" ).ToArray();
+			using( new AssetEditingScope() ) {
+				foreach( var p in files ) {
+					var importer = AssetImporter.GetAtPath( p ) as TextureImporter;
+					if( importer == null ) continue;
+
+					action.Invoke( importer );
+				}
+			}
+		}
+
+
+
+		static void ShowImp( object context ) {
+			var item = (System.ValueTuple<string, Rect>) context;
+			var folder = GUIDUtils.LoadAssetAtGUID<DefaultAsset>( item.Item1 );
+			FolderImportWindow.s_folder = folder;
+
+			
+			var rr2 = GUIUtility.ScreenToGUIRect( item.Item2 );
+			var rr = new Rect();
+			rr.x = rr2.x- (FolderImportWindow.size.x*0.5f);
+			rr.y = rr2.y - FolderImportWindow.size.y;
+			var content = new FolderImportWindow();
+			//Debug.Log( rr2 );
+			PopupWindow.Show( rr, content );
 		}
 
 
@@ -80,8 +112,15 @@ namespace Hananoki.CustomProjectBrowser {
 				//EditorGUI.DrawRect( r, new Color( 0, 0, 1, 0.5f ) );
 				if( EditorHelper.HasMouseClick( r ) ) {
 					var m = new GenericMenu();
-					m.AddItem( SS._OpenInNewInspector, _guid => EditorHelper.ShowNewInspector( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
+					m.AddItem( SS._OpenInNewInspector, _guid => EditorHelper.ShowNewInspectorWindow( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
 					m.AddItem( S._DuplicateAsset, _guid => EditorHelper.DuplicateAsset( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
+					m.AddItem( "TextureImporter", ShowImp, (guid, HGUIUtility.GUIToScreenRect( r )) );
+					//m.AddItem( "TextureImporter/Default", ImpDefault, guid );
+					//m.AddItem( "TextureImporter/Sprite", ImpSpr, guid );
+
+					//m.AddItem( "TextureImporter/Full Rect", ImpFullRect, guid );
+					//m.AddItem( "TextureImporter/ImpSpriteBorder", ImpSpriteBorder, guid );
+
 					if( IsAdressableSupport() ) {
 						m.AddSeparator( "" );
 						if( IsAdressableAssets( guid ) ) {

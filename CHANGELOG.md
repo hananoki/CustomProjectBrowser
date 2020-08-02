@@ -1,5 +1,13 @@
 # CustomProjectBrowser
 
+## [0.5.7] - 2020-08-02
+
+### Added
+- Added texture import settings to the folder
+
+### Changed
+- Changed dependencies in package.json
+
 ## [0.5.6] - 2020-07-16
 - SharedModule v1.5.0 is supported
 

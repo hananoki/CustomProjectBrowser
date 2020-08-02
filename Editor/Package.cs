@@ -5,7 +5,7 @@ namespace Hananoki.CustomProjectBrowser {
   public static class Package {
     public const string name = "CustomProjectBrowser";
     public const string editorPrefName = "Hananoki.CustomProjectBrowser";
-    public const string version = "0.5.6-preview";
+    public const string version = "0.5.7-preview";
   }
   
 #if UNITY_EDITOR
