@@ -15,23 +15,84 @@ using SS = Hananoki.SharedModule.S;
 namespace Hananoki.CustomProjectBrowser {
 	[InitializeOnLoad]
 	public static class CustomProjectBrowser {
-		public class Styles {
-			//public GUIStyle label;
-			public Color lineColor;
 
-			public Styles() {
-				//label = new GUIStyle( EditorStyles.label );
-				//label.alignment = TextAnchor.MiddleLeft;
-				//label.padding.bottom = 0;
-			}
-		}
+		internal static EditorWindow _window;
+		internal static object _IMGUIContainer;
+		internal static string _guid = "---";
 
-		public static Styles s_styles;
-
+		internal static object _IMGUIContainerToolbar;
 
 		static CustomProjectBrowser() {
 			E.Load();
 			EditorApplication.projectWindowItemOnGUI += ProjectWindowItemCallback;
+			Selection.selectionChanged += OnSelectionChanged;
+		}
+
+		static void OnDrawToolbar() {
+			GUILayout.BeginArea( new Rect( 0, 0, _window.position.width, 20 ) );
+			HGUIScope.Horizontal( _ );
+			void _() {
+				GUILayout.Space( 120 );
+				if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_material_icon_asset, "Material" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Material" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditor_animations_animatorcontroller_icon_asset, "Animator Controller" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Animator Controller" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_animationclip_icon_asset, "Animation" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Animation" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset , "Assembly Definition" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Assembly Definition" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_u2d_spriteatlas_icon_asset, "Sprite Atlas" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Sprite Atlas" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_shadervariantcollection_icon_asset, "Shader Variant Collection" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Shader/Shader Variant Collection" );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_rendertexture_icon_asset, "Render Texture" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/Render Texture" );
+				}
+			}
+			GUILayout.EndArea();
+		}
+
+		static void OnSelectionChanged() {
+			if( Selection.assetGUIDs.Length == 0 ) {
+				_guid = "---";
+			}
+			else {
+				_guid = Selection.assetGUIDs[ 0 ];
+			}
+			EditorApplication.RepaintProjectWindow();
+		}
+
+
+		static void OnDrawDockPane() {
+			GUILayout.BeginArea( new Rect( 0, 0, _window.position.width, 20 ) );
+
+			var size = _guid.CalcSizeFromLabel();
+			var cont = EditorHelper.TempContent( _guid );
+			var rect = GUILayoutUtility.GetRect( cont, EditorStyles.label );
+
+			var rr = rect.AlignR( size.x + 16 + 16 + 8 );
+			rr.y += 2;
+			GUI.Label( rr, _guid );
+
+			if( EditorHelper.HasMouseClick( rr, EventMouseButton.L ) ) {
+				var m = new GenericMenu();
+				m.AddItem( new GUIContent( SharedModule.S._Copytoclipboard ), false, delegate {
+					GUIUtility.systemCopyBuffer = ( _guid );
+				} );
+				m.DropDownPopupRect( rr );
+				Event.current.Use();
+			}
+
+			GUILayout.EndArea();
 		}
 
 
@@ -55,10 +116,10 @@ namespace Hananoki.CustomProjectBrowser {
 			var folder = GUIDUtils.LoadAssetAtGUID<DefaultAsset>( item.Item1 );
 			FolderImportWindow.s_folder = folder;
 
-			
+
 			var rr2 = GUIUtility.ScreenToGUIRect( item.Item2 );
 			var rr = new Rect();
-			rr.x = rr2.x- (FolderImportWindow.size.x*0.5f);
+			rr.x = rr2.x - ( FolderImportWindow.size.x * 0.5f );
 			rr.y = rr2.y - FolderImportWindow.size.y;
 			var content = new FolderImportWindow();
 			//Debug.Log( rr2 );
@@ -73,12 +134,25 @@ namespace Hananoki.CustomProjectBrowser {
 		/// <param name="selectionRect"></param>
 		static void ProjectWindowItemCallback( string guid, Rect selectionRect ) {
 
-			if( !E.i.Enable ) return;
+			if( _IMGUIContainer == null ) {
+				_IMGUIContainer = Activator.CreateInstance( UnityTypes.IMGUIContainer, new object[] { (Action) OnDrawDockPane } );
 
-			if( s_styles == null ) {
-				s_styles = new Styles();
-				s_styles.lineColor = E.i.lineColor;
+				if( E.i.guidNotify ) {
+					_window = HEditorWindow.Find( UnityTypes.ProjectBrowser );
+					_window?.AddIMGUIContainer( _IMGUIContainer, true );
+
+				}
+				//_IMGUIContainer.SetProperty<Rect>( "layout",  new Rect(100,0,200,20)  );
 			}
+			if( _IMGUIContainerToolbar == null ) {
+				_IMGUIContainerToolbar = Activator.CreateInstance( UnityTypes.IMGUIContainer, new object[] { (Action) OnDrawToolbar } );
+				if( E.i.toolbarOverride ) {
+					_window = HEditorWindow.Find( UnityTypes.ProjectBrowser );
+					_window?.AddIMGUIContainer( _IMGUIContainerToolbar, true );
+				}
+			}
+
+			if( !E.i.Enable ) return;
 
 			if( !IsDetails( selectionRect ) ) return;
 
@@ -108,8 +182,10 @@ namespace Hananoki.CustomProjectBrowser {
 
 				var r = selectionRect;
 				r.x += 3;
-				r.width = 16;
-				//EditorGUI.DrawRect( r, new Color( 0, 0, 1, 0.5f ) );
+				r = r.W( E.i.size ).AlignCenterH( E.i.size );
+				if( E.i.debug ) {
+					EditorGUI.DrawRect( r, new Color( 0, 0, 1, 0.1f ) );
+				}
 				if( EditorHelper.HasMouseClick( r ) ) {
 					var m = new GenericMenu();
 					m.AddItem( SS._OpenInNewInspector, _guid => EditorHelper.ShowNewInspectorWindow( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
@@ -256,7 +332,7 @@ namespace Hananoki.CustomProjectBrowser {
 			pos.x = 0;
 			pos.xMax = selectionRect.xMax;
 
-			EditorGUI.DrawRect( pos, s_styles.lineColor );
+			EditorGUI.DrawRect( pos, E.i.lineColor );
 		}
 
 

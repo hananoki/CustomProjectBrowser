@@ -1,5 +1,15 @@
 # CustomProjectBrowser
 
+## [0.5.8] - 2020-08-08
+
+### Required
+- SharedModule v1.5.4 or later
+
+### Added
+- Function addition test in tab field
+  - Asset creation
+  - GUID display
+
 ## [0.5.7] - 2020-08-02
 
 ### Added

@@ -21,6 +21,11 @@ namespace Hananoki.CustomProjectBrowser {
 		public bool enableExtensionRun;
 		public bool adressableSupport;
 
+		public bool guidNotify;
+		public bool toolbarOverride;
+		public bool debug;
+		public float size = 16;
+
 		public bool showLineColor = true;
 		public Color lineColorPersonal = new Color( 0, 0, 0, 0.05f );
 		public Color lineColorProfessional = new Color( 1, 1, 1, 0.05f );
@@ -101,7 +106,8 @@ namespace Hananoki.CustomProjectBrowser {
 			E.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, E.i.Enable );
 			EditorGUI.indentLevel++;
 			GUILayout.Space( 8f );
-
+			bool _toolbarOverride;
+			bool _guidNotify;
 			using( new EditorGUI.DisabledGroupScope( !E.i.Enable ) ) {
 				E.i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, E.i.showExtension );
 				using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
@@ -120,6 +126,8 @@ namespace Hananoki.CustomProjectBrowser {
 				}
 
 				GUILayout.Space( 8f );
+
+				// 実験的
 				EditorGUILayout.LabelField( $"* {SS._Experimental}", EditorStyles.boldLabel );
 				E.i.IconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, E.i.IconClickContext );
 				if( UnitySymbol.Has( "UNITY_EDITOR_WIN" ) ) {
@@ -131,6 +139,12 @@ namespace Hananoki.CustomProjectBrowser {
 					E.i.enableExtensionRun = false;
 				}
 				E.i.adressableSupport = HEditorGUILayout.ToggleLeft( S._EnablingAddressablesupport, E.i.adressableSupport );
+
+				_toolbarOverride = HEditorGUILayout.ToggleLeft( "Toolbar Override (UNITY_2019_3_OR_NEWER)", E.i.toolbarOverride );
+				_guidNotify = HEditorGUILayout.ToggleLeft( "GUID (UNITY_2019_3_OR_NEWER)", E.i.guidNotify );
+
+				E.i.debug = HEditorGUILayout.ToggleLeft( "Debug", E.i.debug );
+				E.i.size = EditorGUILayout.FloatField( nameof( E.size ).nicify(), E.i.size );
 			}
 			EditorGUI.indentLevel--;
 
@@ -139,8 +153,31 @@ namespace Hananoki.CustomProjectBrowser {
 
 
 			if( EditorGUI.EndChangeCheck() ) {
+				CustomProjectBrowser._window = HEditorWindow.Find( UnityTypes.ProjectBrowser );
+
+				var list = UnityEditorProjectBrowser.GetAllProjectBrowsers();
+				foreach( EditorWindow a in list ) {
+					if( E.i.toolbarOverride != _toolbarOverride ) {
+						E.i.toolbarOverride = _toolbarOverride;
+						if( E.i.toolbarOverride ) {
+							a.AddIMGUIContainer( CustomProjectBrowser._IMGUIContainerToolbar, true );
+						}
+						else {
+							a.RemoveIMGUIContainer( CustomProjectBrowser._IMGUIContainerToolbar, true );
+						}
+					}
+					if( E.i.guidNotify != _guidNotify ) {
+						E.i.guidNotify = _guidNotify;
+						if( E.i.guidNotify ) {
+							a.AddIMGUIContainer( CustomProjectBrowser._IMGUIContainer, true );
+						}
+						else {
+							a.RemoveIMGUIContainer( CustomProjectBrowser._IMGUIContainer, true );
+						}
+					}
+				}
+
 				E.Save();
-				CustomProjectBrowser.s_styles.lineColor = E.i.lineColor;
 				EditorApplication.RepaintProjectWindow();
 			}
 
