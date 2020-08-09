@@ -1,5 +1,13 @@
 # CustomProjectBrowser
 
+## [0.5.9] - 2020-08-09
+
+### Required
+- SharedModule v1.5.5 or later
+
+### Added
+- Added support for preset texture importers
+
 ## [0.5.8] - 2020-08-08
 
 ### Required

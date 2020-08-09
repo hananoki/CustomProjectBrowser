@@ -20,7 +20,7 @@
 ```
 
 ## Requirement
-![](https://img.shields.io/badge/SharedModule-v1.5.4%20or%20later-blue.svg)
+![](https://img.shields.io/badge/SharedModule-v1.5.5%20or%20later-blue.svg)
 
 ## Description
 
