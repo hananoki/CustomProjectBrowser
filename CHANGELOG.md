@@ -1,5 +1,10 @@
 # CustomProjectBrowser
 
+## [0.5.11] - 2020-09-14
+
+### Fixed
+- Fixed Fixed an error when the argument of UnityEditorProjectBrowser.IsTwoColumns was null
+
 ## [0.5.10] - 2020-09-13
 
 ### Added
