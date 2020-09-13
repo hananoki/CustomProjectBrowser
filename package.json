@@ -1,7 +1,7 @@
 {
   "name": "com.hananoki.custom-project-browser",
   "displayName": "CustomProjectBrowser",
-  "version": "0.5.9-preview",
+  "version": "0.5.10-preview",
   "unity": "2018.3",
   "description": "A simple customized project browser ",
   "keywords": [

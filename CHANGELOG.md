@@ -1,5 +1,14 @@
 # CustomProjectBrowser
 
+## [0.5.10] - 2020-09-13
+
+### Added
+- Addition of a folder creation function with frequently used names
+- Added a C # Script creation button
+
+### Fixed
+- Fixed heavy processing in IconClickContext
+
 ## [0.5.9] - 2020-08-09
 
 ### Required

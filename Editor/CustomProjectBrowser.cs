@@ -22,10 +22,14 @@ namespace Hananoki.CustomProjectBrowser {
 
 		internal static object _IMGUIContainerToolbar;
 
+		internal static bool isTwoColumns ;
+
 		static CustomProjectBrowser() {
 			E.Load();
 			EditorApplication.projectWindowItemOnGUI += ProjectWindowItemCallback;
 			Selection.selectionChanged += OnSelectionChanged;
+
+			isTwoColumns = ProjectBrowserUtils.IsTwoColumns();
 		}
 
 		static void OnDrawToolbar() {
@@ -34,7 +38,30 @@ namespace Hananoki.CustomProjectBrowser {
 			void _() {
 				GUILayout.Space( 120 );
 				if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" );
+					var m = new GenericMenu();
+					m.AddItem( "New Folder", () => ProjectBrowserUtils.CreateFolder( "New Folder" ) );
+					m.AddSeparator( "" );
+
+					m.AddItem( "Animations", () => ProjectBrowserUtils.CreateFolder( "Animations" ) );
+					m.AddItem( "Audio", () => ProjectBrowserUtils.CreateFolder( "Audio" ) );
+
+					m.AddItem( "Editor", () => ProjectBrowserUtils.CreateFolder( "Editor" ) );
+					m.AddItem( "Fonts", () => ProjectBrowserUtils.CreateFolder( "Fonts" ) );
+					m.AddItem( "Materials", () => ProjectBrowserUtils.CreateFolder( "Materials" ) );
+					m.AddItem( "Prefabs", () => ProjectBrowserUtils.CreateFolder( "Prefabs" ) );
+					m.AddItem( "Resources", () => ProjectBrowserUtils.CreateFolder( "Resources" ) );
+					m.AddItem( "Scenes", () => ProjectBrowserUtils.CreateFolder( "Scenes" ) );
+					m.AddItem( "Scripts", () => ProjectBrowserUtils.CreateFolder( "Scripts" ) );
+					m.AddItem( "Shaders", () => ProjectBrowserUtils.CreateFolder( "Shaders" ) );
+					m.AddItem( "Textures", () => ProjectBrowserUtils.CreateFolder( "Textures" ) );
+
+					m.DropDownPopupRect( HEditorGUI.lastRect );
+					//ProjectWindowUtil.StartNameEditingIfProjectWindowExists( 0, ScriptableObject.CreateInstance<DoCreateFolder>(), "New Folder", EditorGUIUtility.IconContent( EditorResources.folderIconName ).image as Texture2D, null );
+					//var a = R.Type( "UnityEditor.Experimental.EditorResources" );
+					////Debug.Log( a.GetProperty( "folderIconName" ).GetValue(null) );
+				}
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_cs_script_icon_asset, "C# Script" ) ) {
+					EditorApplication.ExecuteMenuItem( "Assets/Create/C# Script" );
 				}
 				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_material_icon_asset, "Material" ) ) {
 					EditorApplication.ExecuteMenuItem( "Assets/Create/Material" );
@@ -45,7 +72,7 @@ namespace Hananoki.CustomProjectBrowser {
 				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_animationclip_icon_asset, "Animation" ) ) {
 					EditorApplication.ExecuteMenuItem( "Assets/Create/Animation" );
 				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset , "Assembly Definition" ) ) {
+				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset, "Assembly Definition" ) ) {
 					EditorApplication.ExecuteMenuItem( "Assets/Create/Assembly Definition" );
 				}
 				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_u2d_spriteatlas_icon_asset, "Sprite Atlas" ) ) {
@@ -62,6 +89,8 @@ namespace Hananoki.CustomProjectBrowser {
 		}
 
 		static void OnSelectionChanged() {
+			isTwoColumns = ProjectBrowserUtils.IsTwoColumns();
+
 			if( Selection.assetGUIDs.Length == 0 ) {
 				_guid = "---";
 			}
@@ -178,7 +207,7 @@ namespace Hananoki.CustomProjectBrowser {
 				}
 			}
 
-			if( E.i.IconClickContext && UnityEditorProjectBrowser.IsTwoColumns() ) {
+			if( E.i.IconClickContext && isTwoColumns ) {
 
 				var r = selectionRect;
 				r.x += 3;
