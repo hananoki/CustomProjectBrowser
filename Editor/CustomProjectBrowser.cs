@@ -39,7 +39,7 @@ namespace Hananoki.CustomProjectBrowser {
 				GUILayout.Space( 120 );
 				if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
 					var m = new GenericMenu();
-					m.AddItem( "New Folder", () => ProjectBrowserUtils.CreateFolder( "New Folder" ) );
+					m.AddItem( "New Folder", () => EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" ) );
 					m.AddSeparator( "" );
 
 					m.AddItem( "Animations", () => ProjectBrowserUtils.CreateFolder( "Animations" ) );
@@ -226,6 +226,9 @@ namespace Hananoki.CustomProjectBrowser {
 					//m.AddItem( "TextureImporter/Full Rect", ImpFullRect, guid );
 					//m.AddItem( "TextureImporter/ImpSpriteBorder", ImpSpriteBorder, guid );
 
+					//PreferBinarySerialization
+					m.AddItem( "ForceReserializeAssets", _ForceReserializeAssets, guid );
+					
 					if( IsAdressableSupport() ) {
 						m.AddSeparator( "" );
 						if( IsAdressableAssets( guid ) ) {
@@ -277,6 +280,10 @@ namespace Hananoki.CustomProjectBrowser {
 				}
 			}
 #endif
+
+			void _ForceReserializeAssets( object context) {
+				AssetDatabase.ForceReserializeAssets( new string[] { ( (string) context ).GetAssetPathAtGUID() } );
+			}
 		}
 
 

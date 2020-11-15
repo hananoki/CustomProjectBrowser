@@ -1,5 +1,14 @@
 # CustomProjectBrowser
 
+## [0.5.12] - 2020-11-15
+- SharedModule v1.6.0 or later
+
+### Added
+- Added "ForceReserializeAssets" to context menu
+
+### Changed
+- Made the operation of New Folder the same as the menu
+
 ## [0.5.11] - 2020-09-14
 
 ### Fixed
