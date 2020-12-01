@@ -1,5 +1,8 @@
 # CustomProjectBrowser
 
+## [0.5.13] - 2020-12-02
+- SharedModule v1.7.0 or later
+
 ## [0.5.12] - 2020-11-15
 - SharedModule v1.6.0 or later
 

@@ -88,67 +88,67 @@ namespace Hananoki {
 
 			//TextureImporterType.Default
 			GUILayout.FlexibleSpace();
-			HGUIScope.Horizontal( () => {
-				GUILayout.FlexibleSpace();
-				if( GUILayout.Button( "Apply" ) ) {
-					ImporterAction( AssetDatabase.GetAssetPath( s_folder ), importer => {
-						bool changed = false;
+			HGUIScope.Horizontal();
+			GUILayout.FlexibleSpace();
+			if( GUILayout.Button( "Apply" ) ) {
+				ImporterAction( AssetDatabase.GetAssetPath( s_folder ), importer => {
+					bool changed = false;
 
-						if( m_preset != null ) {
-							m_preset.ApplyTo( importer );
-							importer.SaveAndReimport();
+					if( m_preset != null ) {
+						m_preset.ApplyTo( importer );
+						importer.SaveAndReimport();
+					}
+					else {
+						if( importer.textureType != m_textureType ) {
+							importer.textureType = m_textureType;
+							changed = true;
 						}
-						else {
-							if( importer.textureType != m_textureType ) {
-								importer.textureType = m_textureType;
+
+						if( importer.textureType == TextureImporterType.Default ) {
+
+							if( importer.alphaIsTransparency != m_alphaIsTransparency ) {
+								importer.alphaIsTransparency = m_alphaIsTransparency;
+								changed = true;
+							}
+						}
+						if( importer.textureType == TextureImporterType.Sprite ) {
+							var tis = new TextureImporterSettings();
+							importer.ReadTextureSettings( tis );
+
+
+							if( tis.spriteMode != spriteMode ) {
+								tis.spriteMode = spriteMode;
+								changed = true;
+							}
+							if( tis.spriteMeshType != m_meshType ) {
+								tis.spriteMeshType = m_meshType;
+								changed = true;
+							}
+							if( tis.spritePixelsPerUnit != m_pixelsPerUnit ) {
+								tis.spritePixelsPerUnit = m_pixelsPerUnit;
+								changed = true;
+							}
+							if( tis.spriteGenerateFallbackPhysicsShape != m_generatePhysicsShape ) {
+								tis.spriteGenerateFallbackPhysicsShape = m_generatePhysicsShape;
 								changed = true;
 							}
 
-							if( importer.textureType == TextureImporterType.Default ) {
-
-								if( importer.alphaIsTransparency != m_alphaIsTransparency ) {
-									importer.alphaIsTransparency = m_alphaIsTransparency;
+							if( m_9slice ) {
+								if( tis.spriteBorder != m_9sliceV ) {
+									tis.spriteBorder = m_9sliceV;
 									changed = true;
 								}
 							}
-							if( importer.textureType == TextureImporterType.Sprite ) {
-								var tis = new TextureImporterSettings();
-								importer.ReadTextureSettings( tis );
 
-
-								if( tis.spriteMode != spriteMode ) {
-									tis.spriteMode = spriteMode;
-									changed = true;
-								}
-								if( tis.spriteMeshType != m_meshType ) {
-									tis.spriteMeshType = m_meshType;
-									changed = true;
-								}
-								if( tis.spritePixelsPerUnit != m_pixelsPerUnit ) {
-									tis.spritePixelsPerUnit = m_pixelsPerUnit;
-									changed = true;
-								}
-								if( tis.spriteGenerateFallbackPhysicsShape != m_generatePhysicsShape ) {
-									tis.spriteGenerateFallbackPhysicsShape = m_generatePhysicsShape;
-									changed = true;
-								}
-
-								if( m_9slice ) {
-									if( tis.spriteBorder != m_9sliceV ) {
-										tis.spriteBorder = m_9sliceV;
-										changed = true;
-									}
-								}
-
-								importer.SetTextureSettings( tis );
-							}
-							if( changed ) {
-								importer.SaveAndReimport();
-							}
+							importer.SetTextureSettings( tis );
 						}
-					} );
-				}
-			} );
+						if( changed ) {
+							importer.SaveAndReimport();
+						}
+					}
+				} );
+			}
+			HGUIScope.End();
 		}
 
 

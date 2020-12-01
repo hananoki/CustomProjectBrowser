@@ -22,7 +22,22 @@ namespace Hananoki.CustomProjectBrowser {
 
 		internal static object _IMGUIContainerToolbar;
 
-		internal static bool isTwoColumns ;
+		internal static bool isTwoColumns;
+
+		static string[] s_folderName = ( new string[] {
+			"Animations",
+			"Audio",
+			"Editor",
+			"Fonts",
+			"Materials",
+			"Prefabs",
+			"Resources",
+			"Scenes",
+			"Scripts",
+			"Shaders",
+			"Textures",
+			//"Tests",
+			} ).OrderBy( x => x ).ToArray();
 
 		static CustomProjectBrowser() {
 			E.Load();
@@ -34,57 +49,45 @@ namespace Hananoki.CustomProjectBrowser {
 
 		static void OnDrawToolbar() {
 			GUILayout.BeginArea( new Rect( 0, 0, _window.position.width, 20 ) );
-			HGUIScope.Horizontal( _ );
-			void _() {
-				GUILayout.Space( 120 );
-				if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
-					var m = new GenericMenu();
-					m.AddItem( "New Folder", () => EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" ) );
-					m.AddSeparator( "" );
+			HGUIScope.Horizontal();
+			GUILayout.Space( 120 );
+			if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
+				var m = new GenericMenu();
+				m.AddItem( "New Folder", () => EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" ) );
+				m.AddSeparator( "" );
 
-					m.AddItem( "Animations", () => ProjectBrowserUtils.CreateFolder( "Animations" ) );
-					m.AddItem( "Audio", () => ProjectBrowserUtils.CreateFolder( "Audio" ) );
+				foreach( var p in s_folderName ) m.AddItem( p, () => ProjectBrowserUtils.CreateFolder( p ) );
 
-					m.AddItem( "Editor", () => ProjectBrowserUtils.CreateFolder( "Editor" ) );
-					m.AddItem( "Fonts", () => ProjectBrowserUtils.CreateFolder( "Fonts" ) );
-					m.AddItem( "Materials", () => ProjectBrowserUtils.CreateFolder( "Materials" ) );
-					m.AddItem( "Prefabs", () => ProjectBrowserUtils.CreateFolder( "Prefabs" ) );
-					m.AddItem( "Resources", () => ProjectBrowserUtils.CreateFolder( "Resources" ) );
-					m.AddItem( "Scenes", () => ProjectBrowserUtils.CreateFolder( "Scenes" ) );
-					m.AddItem( "Scripts", () => ProjectBrowserUtils.CreateFolder( "Scripts" ) );
-					m.AddItem( "Shaders", () => ProjectBrowserUtils.CreateFolder( "Shaders" ) );
-					m.AddItem( "Textures", () => ProjectBrowserUtils.CreateFolder( "Textures" ) );
-
-					m.DropDownPopupRect( HEditorGUI.lastRect );
-					//ProjectWindowUtil.StartNameEditingIfProjectWindowExists( 0, ScriptableObject.CreateInstance<DoCreateFolder>(), "New Folder", EditorGUIUtility.IconContent( EditorResources.folderIconName ).image as Texture2D, null );
-					//var a = R.Type( "UnityEditor.Experimental.EditorResources" );
-					////Debug.Log( a.GetProperty( "folderIconName" ).GetValue(null) );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_cs_script_icon_asset, "C# Script" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/C# Script" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_material_icon_asset, "Material" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Material" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditor_animations_animatorcontroller_icon_asset, "Animator Controller" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Animator Controller" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_animationclip_icon_asset, "Animation" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Animation" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset, "Assembly Definition" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Assembly Definition" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_u2d_spriteatlas_icon_asset, "Sprite Atlas" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Sprite Atlas" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_shadervariantcollection_icon_asset, "Shader Variant Collection" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Shader/Shader Variant Collection" );
-				}
-				if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_rendertexture_icon_asset, "Render Texture" ) ) {
-					EditorApplication.ExecuteMenuItem( "Assets/Create/Render Texture" );
-				}
+				m.DropDownPopupRect( HEditorGUI.lastRect );
+				//ProjectWindowUtil.StartNameEditingIfProjectWindowExists( 0, ScriptableObject.CreateInstance<DoCreateFolder>(), "New Folder", EditorGUIUtility.IconContent( EditorResources.folderIconName ).image as Texture2D, null );
+				//var a = R.Type( "UnityEditor.Experimental.EditorResources" );
+				////Debug.Log( a.GetProperty( "folderIconName" ).GetValue(null) );
 			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_cs_script_icon_asset, "C# Script" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/C# Script" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_material_icon_asset, "Material" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Material" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditor_animations_animatorcontroller_icon_asset, "Animator Controller" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Animator Controller" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_animationclip_icon_asset, "Animation" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Animation" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset, "Assembly Definition" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Assembly Definition" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_u2d_spriteatlas_icon_asset, "Sprite Atlas" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Sprite Atlas" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_shadervariantcollection_icon_asset, "Shader Variant Collection" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Shader/Shader Variant Collection" );
+			}
+			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_rendertexture_icon_asset, "Render Texture" ) ) {
+				EditorApplication.ExecuteMenuItem( "Assets/Create/Render Texture" );
+			}
+			HGUIScope.End();
 			GUILayout.EndArea();
 		}
 
@@ -126,7 +129,7 @@ namespace Hananoki.CustomProjectBrowser {
 
 
 		static void ImporterAction( object context, Action<TextureImporter> action ) {
-			var path = GUIDUtils.GetAssetPath( (string) context );
+			var path = context.ContextToAssetPath();
 			var files = DirectoryUtils.GetFiles( path, "*", SearchOption.AllDirectories ).Where( x => x.GetExtension() != ".meta" ).ToArray();
 			using( new AssetEditingScope() ) {
 				foreach( var p in files ) {
@@ -142,7 +145,7 @@ namespace Hananoki.CustomProjectBrowser {
 
 		static void ShowImp( object context ) {
 			var item = (System.ValueTuple<string, Rect>) context;
-			var folder = GUIDUtils.LoadAssetAtGUID<DefaultAsset>( item.Item1 );
+			var folder = AssetDatabaseUtils.LoadAssetAtGUID<DefaultAsset>( item.Item1 );
 			FolderImportWindow.s_folder = folder;
 
 
@@ -163,21 +166,23 @@ namespace Hananoki.CustomProjectBrowser {
 		/// <param name="selectionRect"></param>
 		static void ProjectWindowItemCallback( string guid, Rect selectionRect ) {
 
-			if( _IMGUIContainer == null ) {
-				_IMGUIContainer = Activator.CreateInstance( UnityTypes.IMGUIContainer, new object[] { (Action) OnDrawDockPane } );
+			if( UnitySymbol.UNITY_2019_3_OR_NEWER ) {
+				if( _IMGUIContainer == null ) {
+					_IMGUIContainer = Activator.CreateInstance( UnityTypes.UnityEngine_UIElements_IMGUIContainer, new object[] { (Action) OnDrawDockPane } );
 
-				if( E.i.guidNotify ) {
-					_window = HEditorWindow.Find( UnityTypes.ProjectBrowser );
-					_window?.AddIMGUIContainer( _IMGUIContainer, true );
+					if( E.i.guidNotify ) {
+						_window = HEditorWindow.Find( UnityTypes.UnityEditor_ProjectBrowser );
+						_window?.AddIMGUIContainer( _IMGUIContainer, true );
 
+					}
+					//_IMGUIContainer.SetProperty<Rect>( "layout",  new Rect(100,0,200,20)  );
 				}
-				//_IMGUIContainer.SetProperty<Rect>( "layout",  new Rect(100,0,200,20)  );
-			}
-			if( _IMGUIContainerToolbar == null ) {
-				_IMGUIContainerToolbar = Activator.CreateInstance( UnityTypes.IMGUIContainer, new object[] { (Action) OnDrawToolbar } );
-				if( E.i.toolbarOverride ) {
-					_window = HEditorWindow.Find( UnityTypes.ProjectBrowser );
-					_window?.AddIMGUIContainer( _IMGUIContainerToolbar, true );
+				if( _IMGUIContainerToolbar == null ) {
+					_IMGUIContainerToolbar = Activator.CreateInstance( UnityTypes.UnityEngine_UIElements_IMGUIContainer, new object[] { (Action) OnDrawToolbar } );
+					if( E.i.toolbarOverride ) {
+						_window = HEditorWindow.Find( UnityTypes.UnityEditor_ProjectBrowser );
+						_window?.AddIMGUIContainer( _IMGUIContainerToolbar, true );
+					}
 				}
 			}
 
@@ -207,7 +212,7 @@ namespace Hananoki.CustomProjectBrowser {
 				}
 			}
 
-			if( E.i.IconClickContext && isTwoColumns ) {
+			if( E.i.IconClickContext && isTwoColumns && !guid.IsEmpty() ) {
 
 				var r = selectionRect;
 				r.x += 3;
@@ -217,8 +222,9 @@ namespace Hananoki.CustomProjectBrowser {
 				}
 				if( EditorHelper.HasMouseClick( r ) ) {
 					var m = new GenericMenu();
-					m.AddItem( SS._OpenInNewInspector, _guid => EditorHelper.ShowNewInspectorWindow( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
-					m.AddItem( S._DuplicateAsset, _guid => EditorHelper.DuplicateAsset( GUIDUtils.LoadAssetAtGUID( (string) _guid ) ), guid );
+					//m.AddDisabledItem( guid );
+					m.AddItem( SS._OpenInNewInspector, EditorContextHandler.ShowNewInspectorWindow, guid );
+					m.AddItem( S._DuplicateAsset, EditorContextHandler.DuplicateAsset, guid );
 					m.AddItem( "TextureImporter", ShowImp, (guid, HGUIUtility.GUIToScreenRect( r )) );
 					//m.AddItem( "TextureImporter/Default", ImpDefault, guid );
 					//m.AddItem( "TextureImporter/Sprite", ImpSpr, guid );
@@ -227,8 +233,8 @@ namespace Hananoki.CustomProjectBrowser {
 					//m.AddItem( "TextureImporter/ImpSpriteBorder", ImpSpriteBorder, guid );
 
 					//PreferBinarySerialization
-					m.AddItem( "ForceReserializeAssets", _ForceReserializeAssets, guid );
-					
+					m.AddItem( "ForceReserializeAssets", EditorContextHandler.ForceReserializeAssets, guid );
+
 					if( IsAdressableSupport() ) {
 						m.AddSeparator( "" );
 						if( IsAdressableAssets( guid ) ) {
@@ -236,7 +242,7 @@ namespace Hananoki.CustomProjectBrowser {
 						}
 						else {
 							m.AddItem( S._AddtoAddressable, _guid => {
-								UnityAddressableAssetInspectorGUI.SetAaEntry( UnityAddressableAssetSettingsDefaultObject.GetSettings( true ), new UnityObject[] { GUIDUtils.LoadAssetAtGUID( (string) _guid ) }, true );
+								UnityAddressableAssetInspectorGUI.SetAaEntry( UnityAddressableAssetSettingsDefaultObject.GetSettings( true ), new UnityObject[] { AssetDatabaseUtils.LoadAssetAtGUID( (string) _guid ) }, true );
 							}, guid );
 						}
 					}
@@ -281,9 +287,6 @@ namespace Hananoki.CustomProjectBrowser {
 			}
 #endif
 
-			void _ForceReserializeAssets( object context) {
-				AssetDatabase.ForceReserializeAssets( new string[] { ( (string) context ).GetAssetPathAtGUID() } );
-			}
 		}
 
 
@@ -331,11 +334,13 @@ namespace Hananoki.CustomProjectBrowser {
 		}
 
 
+
 		static bool IsAdressableSupport() {
 			if( !E.i.adressableSupport ) return false;
-			if( R.LoadAssembly( "Unity.Addressables.Editor" ) == null ) return false;
-			return true;
+			if( EditorHelper.IsLoadAssembly( "Unity.Addressables.Editor" )  ) return true;
+			return false;
 		}
+
 
 		static bool IsAdressableAssets( string guid ) {
 			var aaSettings = UnityAddressableAssetSettingsDefaultObject.Settings;

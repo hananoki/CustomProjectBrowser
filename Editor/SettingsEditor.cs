@@ -7,6 +7,7 @@ using Hananoki.SharedModule;
 
 using E = Hananoki.CustomProjectBrowser.SettingsEditor;
 using SS = Hananoki.SharedModule.S;
+using ProjectBrowser = UnityReflection.UnityEditorProjectBrowser;
 
 namespace Hananoki.CustomProjectBrowser {
 
@@ -153,9 +154,9 @@ namespace Hananoki.CustomProjectBrowser {
 
 
 			if( EditorGUI.EndChangeCheck() ) {
-				CustomProjectBrowser._window = HEditorWindow.Find( UnityTypes.ProjectBrowser );
+				CustomProjectBrowser._window = HEditorWindow.Find( UnityTypes.UnityEditor_ProjectBrowser );
 
-				var list = UnityEditorProjectBrowser.GetAllProjectBrowsers();
+				var list = ProjectBrowser.GetAllProjectBrowsers();
 				foreach( EditorWindow a in list ) {
 					if( E.i.toolbarOverride != _toolbarOverride ) {
 						E.i.toolbarOverride = _toolbarOverride;
