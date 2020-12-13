@@ -1,4 +1,4 @@
-﻿using Hananoki.Extensions;
+﻿using HananokiEditor.Extensions;
 using System;
 using System.IO;
 using System.Linq;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 using UnityEditor.Presets;
 
-namespace Hananoki {
+namespace HananokiEditor {
 
 	public class FolderImportWindow : PopupWindowContent {
 		//[MenuItem( "Tools/FolderImport" )]
@@ -88,7 +88,7 @@ namespace Hananoki {
 
 			//TextureImporterType.Default
 			GUILayout.FlexibleSpace();
-			HGUIScope.Horizontal();
+			ScopeHorizontal.Begin();
 			GUILayout.FlexibleSpace();
 			if( GUILayout.Button( "Apply" ) ) {
 				ImporterAction( AssetDatabase.GetAssetPath( s_folder ), importer => {
@@ -148,7 +148,7 @@ namespace Hananoki {
 					}
 				} );
 			}
-			HGUIScope.End();
+			ScopeHorizontal.End();
 		}
 
 

@@ -1,4 +1,10 @@
-# CustomProjectBrowser
+# Custom Project Browser
+
+## [0.5.14] - 2020-12-13
+- SharedModule v1.7.3 or later
+
+### Changed
+- Changed namespace
 
 ## [0.5.13] - 2020-12-02
 - SharedModule v1.7.0 or later

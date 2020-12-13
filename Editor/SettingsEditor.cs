@@ -1,15 +1,16 @@
-﻿//#define ENABLE_LEGACY_PREFERENCE
+﻿#define ENABLE_HANANOKI_SETTINGS
 
+using HananokiEditor.Extensions;
+using HananokiEditor.SharedModule;
+using HananokiRuntime;
 using UnityEditor;
 using UnityEngine;
-using Hananoki.Extensions;
-using Hananoki.SharedModule;
 
-using E = Hananoki.CustomProjectBrowser.SettingsEditor;
-using SS = Hananoki.SharedModule.S;
+using E = HananokiEditor.CustomProjectBrowser.SettingsEditor;
 using ProjectBrowser = UnityReflection.UnityEditorProjectBrowser;
+using SS = HananokiEditor.SharedModule.S;
 
-namespace Hananoki.CustomProjectBrowser {
+namespace HananokiEditor.CustomProjectBrowser {
 
 	[System.Serializable]
 	public class SettingsEditor {
@@ -210,13 +211,12 @@ namespace Hananoki.CustomProjectBrowser {
 
 
 #if ENABLE_HANANOKI_SETTINGS
-	[SettingsClass]
 	public class SettingsEvent {
-		[SettingsMethod]
+		[HananokiSettingsRegister]
 		public static SettingsItem RegisterSettings() {
 			return new SettingsItem() {
 				//mode = 1,
-				displayName = Package.name,
+				displayName = Package.nameNicify,
 				version = Package.version,
 				gui = SettingsEditorWindow.DrawGUI,
 			};

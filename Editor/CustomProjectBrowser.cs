@@ -1,18 +1,18 @@
 ﻿//#define TEST
 
-using System.IO;
+using HananokiEditor.Extensions;
+using HananokiRuntime.Extensions;
 using System;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using Hananoki.Reflection;
-using Hananoki.Extensions;
 
+using E = HananokiEditor.CustomProjectBrowser.SettingsEditor;
+using SS = HananokiEditor.SharedModule.S;
 using UnityObject = UnityEngine.Object;
-using E = Hananoki.CustomProjectBrowser.SettingsEditor;
-using SS = Hananoki.SharedModule.S;
 
-namespace Hananoki.CustomProjectBrowser {
+namespace HananokiEditor.CustomProjectBrowser {
 	[InitializeOnLoad]
 	public static class CustomProjectBrowser {
 
@@ -49,7 +49,7 @@ namespace Hananoki.CustomProjectBrowser {
 
 		static void OnDrawToolbar() {
 			GUILayout.BeginArea( new Rect( 0, 0, _window.position.width, 20 ) );
-			HGUIScope.Horizontal();
+			ScopeHorizontal.Begin();
 			GUILayout.Space( 120 );
 			if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
 				var m = new GenericMenu();
@@ -87,7 +87,7 @@ namespace Hananoki.CustomProjectBrowser {
 			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_rendertexture_icon_asset, "Render Texture" ) ) {
 				EditorApplication.ExecuteMenuItem( "Assets/Create/Render Texture" );
 			}
-			HGUIScope.End();
+			ScopeHorizontal.End();
 			GUILayout.EndArea();
 		}
 
