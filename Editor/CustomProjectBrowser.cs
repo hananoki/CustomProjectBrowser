@@ -49,8 +49,9 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 		static void OnDrawToolbar() {
 			GUILayout.BeginArea( new Rect( 0, 0, _window.position.width, 20 ) );
+			//HEditorGUI.DrawDebugRect( new Rect( 0, 0, _window.position.width, 20 ) );
 			ScopeHorizontal.Begin();
-			GUILayout.Space( 120 );
+			GUILayout.FlexibleSpace(  );
 			if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
 				var m = new GenericMenu();
 				m.AddItem( "New Folder", () => EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" ) );
@@ -87,8 +88,10 @@ namespace HananokiEditor.CustomProjectBrowser {
 			if( HEditorGUILayout.IconButton( EditorIcon.icons_processed_unityengine_rendertexture_icon_asset, "Render Texture" ) ) {
 				EditorApplication.ExecuteMenuItem( "Assets/Create/Render Texture" );
 			}
+			GUILayout.Space( E.i.barOffset );
 			ScopeHorizontal.End();
 			GUILayout.EndArea();
+
 		}
 
 		static void OnSelectionChanged() {
@@ -125,6 +128,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 			}
 
 			GUILayout.EndArea();
+			
 		}
 
 
@@ -171,7 +175,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 					_IMGUIContainer = Activator.CreateInstance( UnityTypes.UnityEngine_UIElements_IMGUIContainer, new object[] { (Action) OnDrawDockPane } );
 
 					if( E.i.guidNotify ) {
-						_window = HEditorWindow.Find( UnityTypes.UnityEditor_ProjectBrowser );
+						_window = EditorWindowUtils.Find( UnityTypes.UnityEditor_ProjectBrowser );
 						_window?.AddIMGUIContainer( _IMGUIContainer, true );
 
 					}
@@ -180,7 +184,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 				if( _IMGUIContainerToolbar == null ) {
 					_IMGUIContainerToolbar = Activator.CreateInstance( UnityTypes.UnityEngine_UIElements_IMGUIContainer, new object[] { (Action) OnDrawToolbar } );
 					if( E.i.toolbarOverride ) {
-						_window = HEditorWindow.Find( UnityTypes.UnityEditor_ProjectBrowser );
+						_window = EditorWindowUtils.Find( UnityTypes.UnityEditor_ProjectBrowser );
 						_window?.AddIMGUIContainer( _IMGUIContainerToolbar, true );
 					}
 				}
@@ -225,6 +229,9 @@ namespace HananokiEditor.CustomProjectBrowser {
 					//m.AddDisabledItem( guid );
 					m.AddItem( SS._OpenInNewInspector, EditorContextHandler.ShowNewInspectorWindow, guid );
 					m.AddItem( S._DuplicateAsset, EditorContextHandler.DuplicateAsset, guid );
+					if( guid.ToAssetPath().HasExtention( ".asmdef" ) && ExternalPackages.hasAsmdefEditor ) {
+						m.AddItem( "Asmdef Editor で編集する", () => ExternalPackages.ExecuteAsmdefEditor( guid.ToAssetPath().FileNameWithoutExtension() ) );
+					}
 					m.AddItem( "TextureImporter", ShowImp, (guid, HGUIUtility.GUIToScreenRect( r )) );
 					//m.AddItem( "TextureImporter/Default", ImpDefault, guid );
 					//m.AddItem( "TextureImporter/Sprite", ImpSpr, guid );
@@ -337,7 +344,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 		static bool IsAdressableSupport() {
 			if( !E.i.adressableSupport ) return false;
-			if( EditorHelper.IsLoadAssembly( "Unity.Addressables.Editor" )  ) return true;
+			if( EditorHelper.IsLoadAssembly( "Unity.Addressables.Editor" ) ) return true;
 			return false;
 		}
 

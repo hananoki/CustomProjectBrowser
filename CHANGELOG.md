@@ -1,5 +1,14 @@
 # Custom Project Browser
 
+## [0.5.15] - 2020-12-20
+- SharedModule v1.7.4 or later
+
+### Added
+- Added the button position adjustment function
+
+### Changed
+- The function to be terminated is changed to Obsolete
+
 ## [0.5.14] - 2020-12-13
 - SharedModule v1.7.3 or later
 
