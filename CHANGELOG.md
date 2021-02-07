@@ -1,5 +1,15 @@
 # Custom Project Browser
 
+## [0.5.16] - 2021-02-07
+- SharedModule v1.7.5 or later
+
+### Added
+- Added Upgrade function to URP, HDRP, and materials.
+- Font, TMPro's Font Asset Creator can now be called
+
+### Changed
+- Titlebar Override is now available in 2019.1 and later
+
 ## [0.5.15] - 2020-12-20
 - SharedModule v1.7.4 or later
 

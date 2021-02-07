@@ -80,7 +80,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 					E.i.enableExtensionRun = false;
 				}
 
-				_toolbarOverride = HEditorGUILayout.ToggleLeft( "Titlebar Override (UNITY_2019_3_OR_NEWER)", E.i.toolbarOverride );
+				_toolbarOverride = HEditorGUILayout.ToggleLeft( "Titlebar Override (UNITY_2019_1_OR_NEWER)", E.i.toolbarOverride );
 
 				_barOffset = EditorGUILayout.Slider( "barOffset".nicify(), E.i.barOffset, 0, 500 );
 

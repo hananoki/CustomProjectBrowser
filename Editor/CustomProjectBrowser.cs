@@ -12,6 +12,11 @@ using E = HananokiEditor.CustomProjectBrowser.SettingsEditor;
 using SS = HananokiEditor.SharedModule.S;
 using UnityObject = UnityEngine.Object;
 
+#if UNITY_2019_1_OR_NEWER
+using UnityEngine.UIElements;
+//using UnityEditor.UIElements;
+#endif
+
 namespace HananokiEditor.CustomProjectBrowser {
 	[InitializeOnLoad]
 	public static class CustomProjectBrowser {
@@ -51,7 +56,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 			GUILayout.BeginArea( new Rect( 0, 0, _window.position.width, 20 ) );
 			//HEditorGUI.DrawDebugRect( new Rect( 0, 0, _window.position.width, 20 ) );
 			ScopeHorizontal.Begin();
-			GUILayout.FlexibleSpace(  );
+			//GUILayout.FlexibleSpace();
 			if( HEditorGUILayout.IconButton( EditorIcon.folder, "Folder" ) ) {
 				var m = new GenericMenu();
 				m.AddItem( "New Folder", () => EditorApplication.ExecuteMenuItem( "Assets/Create/Folder" ) );
@@ -128,7 +133,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 			}
 
 			GUILayout.EndArea();
-			
+
 		}
 
 
@@ -159,7 +164,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 			rr.y = rr2.y - FolderImportWindow.size.y;
 			var content = new FolderImportWindow();
 			//Debug.Log( rr2 );
-			PopupWindow.Show( rr, content );
+			UnityEditor.PopupWindow.Show( rr, content );
 		}
 
 
@@ -170,7 +175,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 		/// <param name="selectionRect"></param>
 		static void ProjectWindowItemCallback( string guid, Rect selectionRect ) {
 
-			if( UnitySymbol.UNITY_2019_3_OR_NEWER ) {
+			if( UnitySymbol.UNITY_2019_1_OR_NEWER ) {
 				if( _IMGUIContainer == null ) {
 					_IMGUIContainer = Activator.CreateInstance( UnityTypes.UnityEngine_UIElements_IMGUIContainer, new object[] { (Action) OnDrawDockPane } );
 
@@ -183,6 +188,13 @@ namespace HananokiEditor.CustomProjectBrowser {
 				}
 				if( _IMGUIContainerToolbar == null ) {
 					_IMGUIContainerToolbar = Activator.CreateInstance( UnityTypes.UnityEngine_UIElements_IMGUIContainer, new object[] { (Action) OnDrawToolbar } );
+#if UNITY_2019_1_OR_NEWER
+					IMGUIContainer con = (IMGUIContainer) _IMGUIContainerToolbar;
+					con.style.height = 20;
+					con.style.marginRight = 42;
+					con.style.width = 144+8;
+					con.style.alignSelf = Align.FlexEnd;
+#endif
 					if( E.i.toolbarOverride ) {
 						_window = EditorWindowUtils.Find( UnityTypes.UnityEditor_ProjectBrowser );
 						_window?.AddIMGUIContainer( _IMGUIContainerToolbar, true );
@@ -227,17 +239,38 @@ namespace HananokiEditor.CustomProjectBrowser {
 				if( EditorHelper.HasMouseClick( r ) ) {
 					var m = new GenericMenu();
 					//m.AddDisabledItem( guid );
-					m.AddItem( SS._OpenInNewInspector, EditorContextHandler.ShowNewInspectorWindow, guid );
-					m.AddItem( S._DuplicateAsset, EditorContextHandler.DuplicateAsset, guid );
 					if( guid.ToAssetPath().HasExtention( ".asmdef" ) && ExternalPackages.hasAsmdefEditor ) {
 						m.AddItem( "Asmdef Editor で編集する", () => ExternalPackages.ExecuteAsmdefEditor( guid.ToAssetPath().FileNameWithoutExtension() ) );
+						m.AddSeparator();
 					}
+					if( guid.LoadAsset().GetType()==typeof(Font) ) {
+						var tmp = "Window/TextMeshPro/Font Asset Creator";
+						if( EditorHelper.HasMenuItem( tmp ) ) {
+							m.AddItem( tmp.FileNameWithoutExtension(), () => EditorApplication.ExecuteMenuItem( tmp ) );
+						}
+						m.AddSeparator();
+					}
+
+					m.AddItem( SS._OpenInNewInspector, EditorContextHandler.ShowNewInspectorWindow, guid );
+					m.AddItem( S._DuplicateAsset, EditorContextHandler.DuplicateAsset, guid );
+
 					m.AddItem( "TextureImporter", ShowImp, (guid, HGUIUtility.GUIToScreenRect( r )) );
 					//m.AddItem( "TextureImporter/Default", ImpDefault, guid );
 					//m.AddItem( "TextureImporter/Sprite", ImpSpr, guid );
 
 					//m.AddItem( "TextureImporter/Full Rect", ImpFullRect, guid );
 					//m.AddItem( "TextureImporter/ImpSpriteBorder", ImpSpriteBorder, guid );
+
+					if( UnityProject.hasURP ) {
+						if( guid.LoadAsset().GetType() == typeof( Material ) ) {
+							m.AddItem( "Upgrade Selected Materials to UniversalRP Materials", () => { EditorApplication.ExecuteMenuItem( "Edit/Render Pipeline/Universal Render Pipeline/Upgrade Selected Materials to UniversalRP Materials" ); } );
+						}
+					}
+					else if( UnityProject.hasHDRP ) {
+						if( guid.LoadAsset().GetType() == typeof( Material ) ) {
+							m.AddItem( "Upgrade Selected Materials to High Definition Materials", () => { EditorApplication.ExecuteMenuItem( "Edit/Render Pipeline/HD Render Pipeline/Upgrade from Builtin pipeline/Upgrade Selected Materials to High Definition Materials" ); } );
+						}
+					}
 
 					//PreferBinarySerialization
 					m.AddItem( "ForceReserializeAssets", EditorContextHandler.ForceReserializeAssets, guid );
@@ -321,7 +354,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 			var rc2 = rc;
 			rc2.y += 2;
-			if( UnitySymbol.Has( "UNITY_2019_1_OR_NEWER" ) ) {
+			if( UnitySymbol.UNITY_2019_1_OR_NEWER ) {
 				rc.x -= 4;
 				rc2.x -= 4;
 				rc2.width += 2;
