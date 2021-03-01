@@ -192,7 +192,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 					IMGUIContainer con = (IMGUIContainer) _IMGUIContainerToolbar;
 					con.style.height = 20;
 					con.style.marginRight = 42;
-					con.style.width = 144+8;
+					con.style.width = 144 + 8;
 					con.style.alignSelf = Align.FlexEnd;
 #endif
 					if( E.i.toolbarOverride ) {
@@ -243,7 +243,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 						m.AddItem( "Asmdef Editor で編集する", () => ExternalPackages.ExecuteAsmdefEditor( guid.ToAssetPath().FileNameWithoutExtension() ) );
 						m.AddSeparator();
 					}
-					if( guid.LoadAsset().GetType()==typeof(Font) ) {
+					if( guid.LoadAsset().GetType() == typeof( Font ) ) {
 						var tmp = "Window/TextMeshPro/Font Asset Creator";
 						if( EditorHelper.HasMenuItem( tmp ) ) {
 							m.AddItem( tmp.FileNameWithoutExtension(), () => EditorApplication.ExecuteMenuItem( tmp ) );
@@ -253,6 +253,11 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 					m.AddItem( SS._OpenInNewInspector, EditorContextHandler.ShowNewInspectorWindow, guid );
 					m.AddItem( S._DuplicateAsset, EditorContextHandler.DuplicateAsset, guid );
+					m.AddItem( "Copy GUID", ( context ) => {
+						var item = (System.ValueTuple<string, Rect>) context;
+						var rr = GUIUtility.ScreenToGUIRect( item.Item2 );
+						EditorHelper.ShowMessagePop( rr.center, $"Copy GUID\n{item.Item1}" );
+					}, (guid, HGUIUtility.GUIToScreenRect( r )) );
 
 					m.AddItem( "TextureImporter", ShowImp, (guid, HGUIUtility.GUIToScreenRect( r )) );
 					//m.AddItem( "TextureImporter/Default", ImpDefault, guid );
@@ -263,11 +268,13 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 					if( UnityProject.hasURP ) {
 						if( guid.LoadAsset().GetType() == typeof( Material ) ) {
+							Selection.activeObject = guid.LoadAsset();
 							m.AddItem( "Upgrade Selected Materials to UniversalRP Materials", () => { EditorApplication.ExecuteMenuItem( "Edit/Render Pipeline/Universal Render Pipeline/Upgrade Selected Materials to UniversalRP Materials" ); } );
 						}
 					}
 					else if( UnityProject.hasHDRP ) {
 						if( guid.LoadAsset().GetType() == typeof( Material ) ) {
+							Selection.activeObject = guid.LoadAsset();
 							m.AddItem( "Upgrade Selected Materials to High Definition Materials", () => { EditorApplication.ExecuteMenuItem( "Edit/Render Pipeline/HD Render Pipeline/Upgrade from Builtin pipeline/Upgrade Selected Materials to High Definition Materials" ); } );
 						}
 					}

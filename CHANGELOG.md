@@ -1,5 +1,12 @@
 # Custom Project Browser
 
+## [0.5.17] - 2021-03-01
+- SharedModule v1.7.7 or later
+
+### Added
+- GUIDs can now be copied from the context menu.
+- Add language file
+
 ## [0.5.16] - 2021-02-07
 - SharedModule v1.7.5 or later
 
