@@ -25,12 +25,9 @@
 
 ![](Documentation~/Preference.png)
 
-- Adressable Support ![](https://img.shields.io/badge/v0.5.2%20or%20later-blue.svg)
-
-![](Documentation~/AdressableSupport.gif)
 
 ## Requirement
-[![](https://img.shields.io/badge/SharedModule-v1.7.7%20or%20later-blue.svg)](https://github.com/hananoki/SharedModule)
+[![](https://img.shields.io/badge/SharedModule-v1.9.0%20or%20later-blue.svg)](https://github.com/hananoki/SharedModule)
 
 ## Licence
 

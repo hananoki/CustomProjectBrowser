@@ -1,5 +1,22 @@
 # Custom Project Browser
 
+## [0.6.0] - 2021-06-09
+- `SharedModule` v1.9.0 or later
+
+### Added
+- Added `MonoBehaviour` Script View
+- Added Project Path Open Button
+- Added External Link Test
+- Added `ScriptableObjectManager` extensions
+
+### Changed
+- Changed the Boolean value in `SettingsEditor` to a flag
+- Removed Addressable function
+
+### Fixed
+- Fixed folders being created in unintended hierarchies
+- Temporarily modified to restore `VisualElement` when the window is attached or detached 
+
 ## [0.5.17] - 2021-03-01
 - SharedModule v1.7.7 or later
 

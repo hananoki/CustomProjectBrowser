@@ -1,5 +1,6 @@
 {
   "name": "Hananoki.CustomProjectBrowser.Editor",
+  "rootNamespace": "",
   "references": [
     "Hananoki.EditorIcon.Editor",
     "Hananoki.SharedModule.Runtime",
