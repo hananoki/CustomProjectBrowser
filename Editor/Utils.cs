@@ -1,36 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using HananokiEditor.Extensions;
-using HananokiRuntime.Extensions;
-using System;
-using System.IO;
-using System.Linq;
+using System.Diagnostics;
 using UnityEditor;
-using UnityEngine;
-
-using E = HananokiEditor.CustomProjectBrowser.SettingsEditor;
-using SS = HananokiEditor.SharedModule.S;
 
 
 namespace HananokiEditor.CustomProjectBrowser {
-	public class Utils  {
+	public class Utils {
+#if UNITY_2019_1_OR_NEWER
 		static void _DeleyAttachDockPane() {
 			if( !GUIDockPane.Attach() ) return;
 
 			//EditorApplication.update -= _DeleyAttachDockPane;
 		}
+#endif
 
-
+		[Conditional( "UNITY_2019_1_OR_NEWER" )]
 		public static void AttachDockPane() {
+#if UNITY_2019_1_OR_NEWER
 			EditorApplication.update -= _DeleyAttachDockPane;
 			EditorApplication.update += _DeleyAttachDockPane;
+#endif
 		}
 
 
+		[Conditional( "UNITY_2019_1_OR_NEWER" )]
 		public static void DetachDockPane() {
 			GUIDockPane.Dettach();
+#if UNITY_2019_1_OR_NEWER
 			EditorApplication.update -= _DeleyAttachDockPane;
+#endif
 		}
 
 

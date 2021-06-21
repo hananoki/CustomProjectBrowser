@@ -1,5 +1,17 @@
 # Custom Project Browser
 
+## [0.7.0] - 2021-06-21
+- `SharedModule` v1.10.0 or later
+
+### Added
+- Added `focusedInspectorsButton`
+- Added `notifyPrefabParent`
+
+### Changed
+- Removed extension color settings
+You can set the color of the extension with `SharedModule`
+- `customToolbar` has been deprecated and will be removed in the next version
+
 ## [0.6.0] - 2021-06-09
 - `SharedModule` v1.9.0 or later
 

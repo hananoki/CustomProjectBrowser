@@ -140,8 +140,8 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 
 		/////////////////////////////////////////
-		protected override void SingleSelectionChanged( Item item ) {
-			Selection.activeObject = item.monoScript;
+		protected override void OnSelectionChanged( Item[] items ) {
+			Selection.activeObject = items[0].monoScript;
 		}
 
 

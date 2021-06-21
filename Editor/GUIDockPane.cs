@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityReflection;
 using UnityEditor.ProjectWindowCallback;
+using System.Diagnostics;
 #if UNITY_2019_1_OR_NEWER
 using UnityEngine.UIElements;
 #endif
@@ -39,7 +40,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 		/////////////////////////////////////////
 		public static bool Attach() {
 #if UNITY_2019_1_OR_NEWER
-			if( attachedProjectBrowser !=null){
+			if( attachedProjectBrowser != null ) {
 				if( attachedProjectBrowser.rootVisualElement.parent.childCount != 3 ) {
 					s_IMGUIContainer = null;
 				}
@@ -63,6 +64,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 
 		/////////////////////////////////////////
+		[Conditional( "UNITY_2019_1_OR_NEWER" )]
 		public static void Dettach() {
 			projectBrowser?.RemoveIMGUIContainer( s_IMGUIContainer, true );
 			s_IMGUIContainer = null;
