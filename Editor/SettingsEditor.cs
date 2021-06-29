@@ -1,6 +1,5 @@
 ﻿using HananokiEditor.Extensions;
 using HananokiEditor.SharedModule;
-using HananokiRuntime;
 using HananokiRuntime.Extensions;
 using System;
 using UnityEditor;
@@ -30,15 +29,16 @@ namespace HananokiEditor.CustomProjectBrowser {
 		#region Flags
 
 		public int flag;
-		const int SHOW_EXTENSION       = ( 1 << 0 );
-		const int ICON_CLICK_CONTEXT   = ( 1 << 1 );
+		const int SHOW_EXTENSION = ( 1 << 0 );
+		const int ICON_CLICK_CONTEXT = ( 1 << 1 );
 		const int ENABLE_EXTENSION_RUN = ( 1 << 2 );
-		const int CUSTOM_DOCKPANE      = ( 1 << 3 );
-		const int CUSTOM_TOOLBAR       = ( 1 << 4 );
-		const int PROJECT_PATH_OPEN    = ( 1 << 5 );
-		const int EXTERNAL_LINK        = ( 1 << 6 );
+		const int CUSTOM_DOCKPANE = ( 1 << 3 );
+
+		const int PROJECT_PATH_OPEN = ( 1 << 5 );
+		const int EXTERNAL_LINK = ( 1 << 6 );
 		const int FOCUSED_INSPECTORS_BUTTON = ( 1 << 7 );
 		const int NOTIFY_PREFAB_PARENT = ( 1 << 8 );
+		const int SHOW_ASSET_TYPE = ( 1 << 9 );
 
 
 		public bool showExtension {
@@ -57,10 +57,6 @@ namespace HananokiEditor.CustomProjectBrowser {
 			get => flag.Has( CUSTOM_DOCKPANE );
 			set => flag.Toggle( CUSTOM_DOCKPANE, value );
 		}
-		public bool customToolbar {
-			get => flag.Has( CUSTOM_TOOLBAR );
-			set => flag.Toggle( CUSTOM_TOOLBAR, value );
-		}
 		public bool projectPathOpen {
 			get => flag.Has( PROJECT_PATH_OPEN );
 			set => flag.Toggle( PROJECT_PATH_OPEN, value );
@@ -77,6 +73,10 @@ namespace HananokiEditor.CustomProjectBrowser {
 			get => flag.Has( NOTIFY_PREFAB_PARENT );
 			set => flag.Toggle( NOTIFY_PREFAB_PARENT, value );
 		}
+		public bool showAssetType {
+			get => flag.Has( SHOW_ASSET_TYPE );
+			set => flag.Toggle( SHOW_ASSET_TYPE, value );
+		}
 
 		#endregion
 
@@ -89,34 +89,8 @@ namespace HananokiEditor.CustomProjectBrowser {
 		public Color lineColorPersonal = new Color( 0, 0, 0, 0.05f );
 		public Color lineColorProfessional = new Color( 1, 1, 1, 0.05f );
 
-		//public Color extBackColorPersonal = ColorUtils.RGB( 242 );
-		//public Color extTextColorPersonal = ColorUtils.RGB( 72 );
-
-		//public Color extBackColorProfessional = ColorUtils.RGB( 41 );
-		//public Color extTextColorProfessional = ColorUtils.RGB( 173 );
-
 		public static E i;
 
-		/*
-		public Color extBackColor {
-			get {
-				return EditorGUIUtility.isProSkin ? extBackColorProfessional : extBackColorPersonal;
-			}
-			set {
-				if( EditorGUIUtility.isProSkin ) extBackColorProfessional = value;
-				else extBackColorPersonal = value;
-			}
-		}
-		public Color extTextColor {
-			get {
-				return EditorGUIUtility.isProSkin ? extTextColorProfessional : extTextColorPersonal;
-			}
-			set {
-				if( EditorGUIUtility.isProSkin ) extTextColorProfessional = value;
-				else extTextColorPersonal = value;
-			}
-		}
-		*/
 
 		public Color lineColor {
 			get {
@@ -147,10 +121,10 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 		/////////////////////////////////////////
 		public static void DrawGUI() {
-			E.Load();
+			Load();
 			ScopeChange.Begin();
 
-			E.i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, E.i.Enable );
+			i.Enable = HEditorGUILayout.ToggleLeft( SS._Enable, i.Enable );
 			EditorGUI.indentLevel++;
 			GUILayout.Space( 8f );
 
@@ -158,11 +132,18 @@ namespace HananokiEditor.CustomProjectBrowser {
 			//float _barOffset;
 
 
-			ScopeDisable.Begin( !E.i.Enable );
+			ScopeDisable.Begin( !i.Enable );
 
-			E.i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, E.i.showExtension );
+			i.showExtension = HEditorGUILayout.ToggleLeft( S._ShowExtension, i.showExtension );
+			if( i.showExtension ) {
+				i.showAssetType = false;
+			}
+			i.showAssetType = HEditorGUILayout.ToggleLeft( "Show Asset Type", i.showAssetType );
+			if( i.showAssetType ) {
+				i.showExtension = false;
+			}
 
-			ScopeDisable.Begin( !E.i.showExtension );
+			ScopeDisable.Begin( !i.showExtension );
 
 #if false // ShaerdModuleのversionカラーに変更してた
 			EditorGUI.indentLevel++;
@@ -173,12 +154,12 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 			ScopeDisable.End();
 
-			E.i.showLineColor = HEditorGUILayout.ToggleLeft( SS._Changecolorforeachrow, E.i.showLineColor );
+			i.showLineColor = HEditorGUILayout.ToggleLeft( SS._Changecolorforeachrow, i.showLineColor );
 
-			ScopeDisable.Begin( !E.i.showLineColor );
+			ScopeDisable.Begin( !i.showLineColor );
 
 			EditorGUI.indentLevel++;
-			E.i.lineColor = EditorGUILayout.ColorField( SS._Rowcolor, E.i.lineColor );
+			i.lineColor = EditorGUILayout.ColorField( SS._Rowcolor, i.lineColor );
 			EditorGUI.indentLevel--;
 
 			ScopeDisable.End();
@@ -190,30 +171,30 @@ namespace HananokiEditor.CustomProjectBrowser {
 			// 実験的
 			//EditorGUILayout.LabelField( $"* {SS._Experimental}", EditorStyles.boldLabel );
 			HEditorGUILayout.HeaderTitle( $"* {SS._Experimental}" );
-			E.i.iconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, E.i.iconClickContext );
+			i.iconClickContext = HEditorGUILayout.ToggleLeft( SS._ContextMenuWithIconClick, i.iconClickContext );
 			if( UnitySymbol.Has( "UNITY_EDITOR_WIN" ) ) {
-				using( new EditorGUI.DisabledGroupScope( !E.i.showExtension ) ) {
-					E.i.enableExtensionRun = HEditorGUILayout.ToggleLeft( S._Clickontheextensiontorunitinthefiler, E.i.enableExtensionRun );
+				using( new EditorGUI.DisabledGroupScope( !( i.showExtension | i.showAssetType ) ) ) {
+					i.enableExtensionRun = HEditorGUILayout.ToggleLeft( S._Clickontheextensiontorunitinthefiler, i.enableExtensionRun );
 				}
 			}
 			else {
-				E.i.enableExtensionRun = false;
+				i.enableExtensionRun = false;
 			}
 
-			var _customDockpane     = HEditorGUILayout.ToggleLeft( "DockPane (UNITY_2019_1_OR_NEWER)", E.i.customDockpane );
-			
-			var _projectPathOpen    = HEditorGUILayout.ToggleLeft( "Project Path Open Button", E.i.projectPathOpen );
-			var _externalLink       = HEditorGUILayout.ToggleLeft( "External Link Test", E.i.externalLink );
-			var _focusedInspectorsButton = HEditorGUILayout.ToggleLeft( "Focused Inspectors Button", E.i.focusedInspectorsButton );
-			var _notifyPrefabParent = HEditorGUILayout.ToggleLeft( "Notify Prefab Parent", E.i.notifyPrefabParent );
-			
+			var _customDockpane = HEditorGUILayout.ToggleLeft( "DockPane (UNITY_2019_1_OR_NEWER)", i.customDockpane );
+
+			var _projectPathOpen = HEditorGUILayout.ToggleLeft( "Project Path Open Button", i.projectPathOpen );
+			var _externalLink = HEditorGUILayout.ToggleLeft( "External Link Test", i.externalLink );
+			var _focusedInspectorsButton = HEditorGUILayout.ToggleLeft( "Focused Inspectors Button", i.focusedInspectorsButton );
+			var _notifyPrefabParent = HEditorGUILayout.ToggleLeft( "Notify Prefab Parent", i.notifyPrefabParent );
+
 
 			GUILayout.Space( 8f );
 
 
 			/////////////////////////
-			HEditorGUILayout.HeaderTitle( $"* {SS._Deprecated}" );
-			var _customToolbar = HEditorGUILayout.ToggleLeft( "Toolbar (UNITY_2019_1_OR_NEWER)", E.i.customToolbar );
+			//HEditorGUILayout.HeaderTitle( $"* {SS._Deprecated}" );
+			//var _customToolbar = HEditorGUILayout.ToggleLeft( "Toolbar (UNITY_2019_1_OR_NEWER)", i.customToolbar );
 			//_guidNotify = HEditorGUILayout.ToggleLeft( "GUID (UNITY_2019_3_OR_NEWER)", E.i.guidNotify );
 
 			GUILayout.Space( 8f );
@@ -223,8 +204,8 @@ namespace HananokiEditor.CustomProjectBrowser {
 			/////////////////////////
 			HEditorGUILayout.HeaderTitle( $"* Debug" );
 
-			E.i.debug = HEditorGUILayout.ToggleLeft( "Icon-ClickArea DrawRect", E.i.debug );
-			E.i.size = EditorGUILayout.FloatField( nameof( E.size ).nicify(), E.i.size );
+			i.debug = HEditorGUILayout.ToggleLeft( "Icon-ClickArea DrawRect", i.debug );
+			i.size = EditorGUILayout.FloatField( nameof( size ).nicify(), i.size );
 
 			ScopeDisable.End();
 			EditorGUI.indentLevel--;
@@ -234,33 +215,24 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 
 			if( ScopeChange.End() ) {
-				
-				E.i.projectPathOpen    = _projectPathOpen;
-				E.i.externalLink       = _externalLink;
-				E.i.focusedInspectorsButton = _focusedInspectorsButton;
-				E.i.notifyPrefabParent = _notifyPrefabParent;
+
+				i.projectPathOpen = _projectPathOpen;
+				i.externalLink = _externalLink;
+				i.focusedInspectorsButton = _focusedInspectorsButton;
+				i.notifyPrefabParent = _notifyPrefabParent;
 #if UNITY_2019_1_OR_NEWER
-				if( E.i.customDockpane != _customDockpane ) {
-					E.i.customDockpane = _customDockpane;
-					if( E.i.customDockpane ) {
+				if( i.customDockpane != _customDockpane ) {
+					i.customDockpane = _customDockpane;
+					if( i.customDockpane ) {
 						Utils.AttachDockPane();
 					}
 					else {
 						Utils.DetachDockPane();
 					}
 				}
-				if( E.i.customToolbar != _customToolbar ) {
-					E.i.customToolbar = _customToolbar;
-					if( E.i.customToolbar ) {
-						Utils.AttachToolbar();
-					}
-					else {
-						Utils.DetachToolbar();
-					}
-				}
 #endif
 
-				E.Save();
+				Save();
 				EditorApplication.RepaintProjectWindow();
 			}
 

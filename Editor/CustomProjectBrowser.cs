@@ -4,16 +4,15 @@
 //#define TEST
 
 using HananokiEditor.Extensions;
+using HananokiRuntime;
 using HananokiRuntime.Extensions;
 using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
 using E = HananokiEditor.CustomProjectBrowser.SettingsEditor;
 using SS = HananokiEditor.SharedModule.S;
-
 
 
 
@@ -24,6 +23,10 @@ namespace HananokiEditor.CustomProjectBrowser {
 		internal static string s_guid = "---";
 		internal static bool s_isTwoColumns;
 
+		internal static string s_lastGuid = "---";
+		internal static int s_lastSub;
+
+		internal static bool s_test;
 
 		/////////////////////////////////////////
 		static CustomProjectBrowser() {
@@ -35,19 +38,16 @@ namespace HananokiEditor.CustomProjectBrowser {
 			Selection.selectionChanged -= OnSelectionChanged;
 			Selection.selectionChanged += OnSelectionChanged;
 
-			s_isTwoColumns = ProjectBrowserUtils.IsTwoColumns();
+			s_isTwoColumns = ProjectBrowserUtils.isTwoColumns;
 
 			if( E.i.customDockpane ) Utils.AttachDockPane();
-#if UNITY_2019_1_OR_NEWER
-			if( E.i.customToolbar ) Utils.AttachToolbar();
-#endif
 		}
 
 
 
 		/////////////////////////////////////////
 		static void OnSelectionChanged() {
-			s_isTwoColumns = ProjectBrowserUtils.IsTwoColumns();
+			s_isTwoColumns = ProjectBrowserUtils.isTwoColumns;
 
 			if( Selection.assetGUIDs.Length == 0 ) {
 				s_guid = "---";
@@ -62,11 +62,19 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 		/////////////////////////////////////////
 		static void ProjectWindowItemCallback( string guid, Rect selectionRect ) {
+			s_test = true;
+			DrawProjectItemCallback( guid, 0, selectionRect );
+			s_test = false;
+		}
+
+
+		/////////////////////////////////////////
+		static void DrawProjectItemCallback( string guid, long localID, Rect selectionRect ) {
 			if( !E.i.Enable ) return;
 
 			if( !IsDetails( selectionRect ) ) return;
 
-			if( E.i.showLineColor ) DrawBackColor( selectionRect, 0x00 );
+			if( E.i.showLineColor ) DrawBackColor( guid, localID, selectionRect, 0x00 );
 
 
 			var assetPath = guid.ToAssetPath();
@@ -78,9 +86,8 @@ namespace HananokiEditor.CustomProjectBrowser {
 			// それで分岐するぐらいしか手が思いつかない
 
 			if( !guid.IsEmpty() ) {
-				if( E.i.showExtension ) {
-					拡張子を表示する( guid, assetPath, selectionRect );
-				}
+				if( E.i.showExtension ) 拡張子を表示する( guid, assetPath, selectionRect );
+				if( E.i.showAssetType ) アセットタイプを表示する( guid, localID, assetPath, selectionRect );
 
 				if( E.i.projectPathOpen && assetPath == "Assets" ) {
 					var r = selectionRect.AlignR( 16 );
@@ -91,25 +98,67 @@ namespace HananokiEditor.CustomProjectBrowser {
 					コンテキストメニューを表示する( guid, assetPath, selectionRect );
 				}
 
+				// フォーカスインスペクタ
 				if( E.i.focusedInspectorsButton && !AssetDatabase.IsValidFolder( assetPath ) ) {
-					var rc = selectionRect;
-					var fname = assetPath.FileNameWithoutExtension();
-					var size = fname.CalcSize( HEditorStyles.treeViewLine );
-					rc.x += size.x + 16 + 8;
-					//rc.x = 0; //サブアセットfoldと干渉する
-					rc.width = 16;
-					if( HEditorGUI.IconButton( rc, EditorIcon.tab_next ) ) {
-						EditorContextHandler.ShowNewInspectorWindow( guid );
+					//Debug.Log($"{selectionRect.x} {assetPath}" );
+					//float si = 20;
+					if( 0 != localID ) {
+						var asset = AssetDatabaseCache.LoadAssetAtGUIDAndLocalID( guid, localID );
+
+						var rc = selectionRect;
+						var size = asset.unityObject.name.CalcSize( HEditorStyles.treeViewLine );
+						rc.x += size.x + 16 + 8;
+						//rc.x = 0; //サブアセットfoldと干渉する
+						rc.width = 16;
+						if( HEditorGUI.IconButton( rc, EditorIcon.tab_next ) ) {
+							EditorContextHandler.ShowNewInspectorWindow( guid );
+						}
+					}
+					else {
+						if( !ProjectBrowserUtils.isSearching ) {
+							if( s_lastGuid == guid ) {
+								var objs = guid.LoadAllSubAssets().Where( x => !x.hideFlags.HasFlag( HideFlags.HideInHierarchy ) ).ToArray();
+								if( s_lastSub < objs.Length ) {
+									var obj = objs[ s_lastSub ];
+
+									var rc = selectionRect;
+									var fname = obj.name;
+									var size = fname.CalcSize( HEditorStyles.treeViewLine );
+									rc.x += size.x + 16 + 8;
+
+									rc.width = 16;
+									if( HEditorGUI.IconButton( rc, EditorIcon.tab_next ) ) {
+										EditorContextHandler.ShowNewInspectorWindow( obj );
+									}
+								}
+								else {
+								}
+								s_lastSub++;
+							}
+							else {
+								s_lastGuid = guid;
+								s_lastSub = 0;
+								var rc = selectionRect;
+								var fname = assetPath.FileNameWithoutExtension();
+								var size = fname.CalcSize( HEditorStyles.treeViewLine );
+								rc.x += size.x + 16 + 8;
+								//rc.x = 0; //サブアセットfoldと干渉する
+								rc.width = 16;
+								if( HEditorGUI.IconButton( rc, EditorIcon.tab_next ) ) {
+									EditorContextHandler.ShowNewInspectorWindow( guid );
+								}
+							}
+						}
 					}
 				}
 			}
 			else {
 				// Favorite or Packages
-				s_isTwoColumns = ProjectBrowserUtils.IsTwoColumns();
+				s_isTwoColumns = ProjectBrowserUtils.isTwoColumns;
 			}
 
 
-			if( E.i.externalLink ) {
+			if( E.i.externalLink && s_test ) {
 				ExternalPackages.PBcall?.Invoke( assetPath, guid, ref selectionRect );
 			}
 
@@ -126,6 +175,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 						selectionRect.xMax = x;
 						EditorGUI.DrawRect( selectionRect, cc );
 					}
+
 				}
 			}
 		}
@@ -143,7 +193,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 				var m = new GenericMenu();
 				//m.AddDisabledItem( guid );
 				if( assetPath.HasExtention( ".asmdef" ) && ExternalPackages.AsmdefGraph.enabled ) {
-					m.AddItem( "Asmdef Editor で編集する", () => ExternalPackages.AsmdefGraph.ExecuteAsmdefEditor( guid.ToAssetPath().FileNameWithoutExtension() ) );
+					m.AddItem( "Asmdef Editor で編集する", () => ExternalPackages.AsmdefGraph.OpenAsName( guid ) );
 					m.AddSeparator();
 				}
 				if( guid.GetAssetType() == typeof( Font ) ) {
@@ -234,6 +284,45 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 
 		/////////////////////////////////////////
+		static void アセットタイプを表示する( string guid, long localID, string assetPath, Rect selectionRect ) {
+			var asset = AssetDatabaseCache.LoadAssetAtGUIDAndLocalID( guid, localID );
+			if( asset != null ) {
+				var type = asset.unityObject.GetTypeSafe();
+				asset.label = assetPath.Extension();
+
+				if( type == typeof( MonoScript ) && asset.monoScript.GetClass().指定クラスを含む( typeof( MonoBehaviour ) ) ) {
+					asset.label = "MonoBehaviour";
+				}
+				else if( type == typeof( MonoScript ) && asset.monoScript.GetClass().指定クラスを含む( typeof( ScriptableObject ) ) ) {
+					asset.label = "ScriptableObject";
+				}
+				//else if( type == typeof( TextAsset ) || type == typeof( AudioClip ) ) {
+				//	str = assetPath.Extension();
+				//}
+				else if( type == typeof( Material ) ) {
+					var ss = asset.material.shader.name.Split( '/' ).ToList();
+					ss.RemoveAt( 0 );
+					asset.label = string.Join( "/", ss );
+				}
+				else if( AssetDatabase.IsValidFolder( assetPath ) ) {
+					asset.label = "";
+				}
+				else if( asset.unityObject.IsSubAsset() ) {
+					asset.label = "";
+				}
+			}
+			if( asset.label.IsEmpty() ) return;
+
+			var rect = HEditorGUI.MiniLabelR( selectionRect, asset.label );
+
+			if( E.i.enableExtensionRun && EditorHelper.HasMouseClick( rect ) ) {
+				ShellUtils.Start( "explorer.exe", $"{fs.currentDirectory}/{assetPath}".separatorToOS() );
+				Event.current.Use();
+			}
+		}
+
+
+		/////////////////////////////////////////
 		static void 拡張子を表示する( string guid, string assetPath, Rect selectionRect ) {
 			if( AssetDatabase.IsValidFolder( assetPath ) ) return;
 
@@ -271,7 +360,12 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 
 		/////////////////////////////////////////
-		static void DrawBackColor( Rect selectionRect, int mask ) {
+		static void DrawBackColor( string guid, long localID, Rect selectionRect, int mask ) {
+			var info = AssetDatabaseCache.LoadAssetAtGUIDAndLocalID( guid, localID );
+			if( info.missing ) {
+				EditorGUI.DrawRect( selectionRect, ColorUtils.RGBA( Color.red, 0.2f ) );
+				return;
+			}
 			var index = ( (int) selectionRect.y ) >> 4;
 
 			if( ( index & 0x01 ) == mask ) return;

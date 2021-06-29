@@ -41,8 +41,11 @@ namespace HananokiEditor.CustomProjectBrowser {
 		public static bool Attach() {
 #if UNITY_2019_1_OR_NEWER
 			if( attachedProjectBrowser != null ) {
-				if( attachedProjectBrowser.rootVisualElement.parent.childCount != 3 ) {
-					s_IMGUIContainer = null;
+				// mixer等ドッキングするとparentがnullになる
+				if( attachedProjectBrowser.rootVisualElement.parent !=null ) {
+					if( attachedProjectBrowser.rootVisualElement.parent.childCount != 3 ) {
+						s_IMGUIContainer = null;
+					}
 				}
 			}
 #endif

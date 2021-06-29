@@ -1,7 +1,22 @@
 # Custom Project Browser
 
+## [0.8.0] - 2021-06-30
+- `SharedModule v1.11.0` or later
+
+### Added
+- Added `Show Asset Type`
+- Added `CustomProjectBrowser.DrawProjectItemCallback`
+- `CustomProjectBrowser.DrawBackColor`: Added processing when the script detects missing
+
+### Changed
+- Removed `customToolbar`
+
+### Fixed
+- Fixed a bug when docking `AudioMixer` etc.
+- Temporarily fixed the Focused Inspectors button position of the sub-asset
+
 ## [0.7.0] - 2021-06-21
-- `SharedModule` v1.10.0 or later
+- `SharedModule v1.10.0` or later
 
 ### Added
 - Added `focusedInspectorsButton`
