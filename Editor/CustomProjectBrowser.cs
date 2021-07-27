@@ -27,6 +27,8 @@ namespace HananokiEditor.CustomProjectBrowser {
 		internal static int s_lastSub;
 
 		internal static bool s_test;
+		internal static bool s_supress;
+
 
 		/////////////////////////////////////////
 		static CustomProjectBrowser() {
@@ -40,7 +42,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 			s_isTwoColumns = ProjectBrowserUtils.isTwoColumns;
 
-			if( E.i.customDockpane ) Utils.AttachDockPane();
+			//if( E.i.customDockpane ) Utils.AttachDockPane();
 		}
 
 
@@ -62,6 +64,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 		/////////////////////////////////////////
 		static void ProjectWindowItemCallback( string guid, Rect selectionRect ) {
+			if( s_supress ) return;
 			s_test = true;
 			DrawProjectItemCallback( guid, 0, selectionRect );
 			s_test = false;
@@ -159,7 +162,19 @@ namespace HananokiEditor.CustomProjectBrowser {
 
 
 			if( E.i.externalLink && s_test ) {
-				ExternalPackages.PBcall?.Invoke( assetPath, guid, ref selectionRect );
+				try {
+					ExternalPackages.PBcall?.Invoke( assetPath, guid, ref selectionRect );
+				}
+				catch( MissingMethodException mme ) {
+#if UNITY_2019_1_OR_NEWER
+					Debug.LogException( mme );
+#else
+					// 2018.4だと呼び出せないっぽい!?
+#endif
+				}
+				catch( Exception e ) {
+					Debug.LogException( e );
+				}
 			}
 
 
@@ -290,12 +305,23 @@ namespace HananokiEditor.CustomProjectBrowser {
 				var type = asset.unityObject.GetTypeSafe();
 				asset.label = assetPath.Extension();
 
-				if( type == typeof( MonoScript ) && asset.monoScript.GetClass().指定クラスを含む( typeof( MonoBehaviour ) ) ) {
-					asset.label = "MonoBehaviour";
+				if( type == typeof( MonoScript ) ) {
+					var monoType = asset.monoScript.GetClass();
+
+					if( type == typeof( MonoScript ) && monoType.指定クラスを含む( typeof( MonoBehaviour ) ) ) {
+						asset.label = "MonoBehaviour";
+					}
+					else if( type == typeof( MonoScript ) && monoType.指定クラスを含む( typeof( Editor ) ) ) {
+						asset.label = "Editor";
+					}
+					else if( type == typeof( MonoScript ) && monoType.指定クラスを含む( typeof( EditorWindow ) ) ) {
+						asset.label = "EditorWindow";
+					}
+					else if( type == typeof( MonoScript ) && monoType.指定クラスを含む( typeof( ScriptableObject ) ) ) {
+						asset.label = "ScriptableObject";
+					}
 				}
-				else if( type == typeof( MonoScript ) && asset.monoScript.GetClass().指定クラスを含む( typeof( ScriptableObject ) ) ) {
-					asset.label = "ScriptableObject";
-				}
+
 				//else if( type == typeof( TextAsset ) || type == typeof( AudioClip ) ) {
 				//	str = assetPath.Extension();
 				//}

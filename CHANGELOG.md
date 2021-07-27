@@ -1,5 +1,19 @@
 # Custom Project Browser
 
+## [0.9.0] - 2021-07-27
+- `SharedModule v1.12.0` or later
+
+### Added
+- アセットタイプを表示する
+  - Added the function that the display contents change depending on the type of MonoScript
+- Added a function to suppress the call of ProjectWindowItemCallback
+
+### Changed
+- Removed `Dock Pane`
+
+### Fixed
+- Fixed ExternalPackages.PBcall exception
+
 ## [0.8.0] - 2021-06-30
 - `SharedModule v1.11.0` or later
 

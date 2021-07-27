@@ -7,6 +7,6 @@ namespace HananokiEditor.CustomProjectBrowser {
     public const string name = "CustomProjectBrowser";
     public const string nameNicify = "Custom Project Browser";
     public const string editorPrefName = "Hananoki.CustomProjectBrowser";
-    public const string version = "0.8.0";
+    public const string version = "0.9.0";
   }
 }

@@ -32,7 +32,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 		const int SHOW_EXTENSION = ( 1 << 0 );
 		const int ICON_CLICK_CONTEXT = ( 1 << 1 );
 		const int ENABLE_EXTENSION_RUN = ( 1 << 2 );
-		const int CUSTOM_DOCKPANE = ( 1 << 3 );
+		//const int CUSTOM_DOCKPANE = ( 1 << 3 );
 
 		const int PROJECT_PATH_OPEN = ( 1 << 5 );
 		const int EXTERNAL_LINK = ( 1 << 6 );
@@ -53,10 +53,10 @@ namespace HananokiEditor.CustomProjectBrowser {
 			get => flag.Has( ENABLE_EXTENSION_RUN );
 			set => flag.Toggle( ENABLE_EXTENSION_RUN, value );
 		}
-		public bool customDockpane {
-			get => flag.Has( CUSTOM_DOCKPANE );
-			set => flag.Toggle( CUSTOM_DOCKPANE, value );
-		}
+		//public bool customDockpane {
+		//	get => flag.Has( CUSTOM_DOCKPANE );
+		//	set => flag.Toggle( CUSTOM_DOCKPANE, value );
+		//}
 		public bool projectPathOpen {
 			get => flag.Has( PROJECT_PATH_OPEN );
 			set => flag.Toggle( PROJECT_PATH_OPEN, value );
@@ -181,7 +181,7 @@ namespace HananokiEditor.CustomProjectBrowser {
 				i.enableExtensionRun = false;
 			}
 
-			var _customDockpane = HEditorGUILayout.ToggleLeft( "DockPane (UNITY_2019_1_OR_NEWER)", i.customDockpane );
+			//var _customDockpane = HEditorGUILayout.ToggleLeft( "DockPane (UNITY_2019_1_OR_NEWER)", i.customDockpane );
 
 			var _projectPathOpen = HEditorGUILayout.ToggleLeft( "Project Path Open Button", i.projectPathOpen );
 			var _externalLink = HEditorGUILayout.ToggleLeft( "External Link Test", i.externalLink );
@@ -220,17 +220,17 @@ namespace HananokiEditor.CustomProjectBrowser {
 				i.externalLink = _externalLink;
 				i.focusedInspectorsButton = _focusedInspectorsButton;
 				i.notifyPrefabParent = _notifyPrefabParent;
-#if UNITY_2019_1_OR_NEWER
-				if( i.customDockpane != _customDockpane ) {
-					i.customDockpane = _customDockpane;
-					if( i.customDockpane ) {
-						Utils.AttachDockPane();
-					}
-					else {
-						Utils.DetachDockPane();
-					}
-				}
-#endif
+//#if UNITY_2019_1_OR_NEWER
+//				if( i.customDockpane != _customDockpane ) {
+//					i.customDockpane = _customDockpane;
+//					if( i.customDockpane ) {
+//						Utils.AttachDockPane();
+//					}
+//					else {
+//						Utils.DetachDockPane();
+//					}
+//				}
+//#endif
 
 				Save();
 				EditorApplication.RepaintProjectWindow();
